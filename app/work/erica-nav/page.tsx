@@ -2,6 +2,24 @@ import type { Metadata } from "next";
 import { VChart, HChart } from "@/components/Charts";
 import Respondents from "@/components/Respondents";
 import Catalog from "@/components/Catalog";
+import { REQ_ICONS } from "@/components/ReqIcons";
+
+// Finding to requirement to feature, one column per requirement (numbers from section 7 of the brief).
+type Req = { icon: keyof typeof REQ_ICONS; name: string; need: string; finding: React.ReactNode; response: React.ReactNode; later?: boolean };
+const REQS: Req[] = [
+  { icon: "search", name: "Multilingual search", need: "Search by English name, Korean name or building number",
+    finding: <><span className="n">56%</span> couldn&apos;t search by building number<br />Naver Map rated <span className="n">2.75/5</span> by non-Korean readers</>,
+    response: <>Search by number or name with an EN / <span lang="ko">한</span> toggle</> },
+  { icon: "map", name: "Building number and map integration", need: "Connect the timetable to the map",
+    finding: <><span className="n">49%</span> couldn&apos;t match timetable numbers to the map<br /><span className="n">89%</span> struggled most in the first weeks</>,
+    response: <>Personal timetable, turn-by-turn routes, campus shuttle schedule</> },
+  { icon: "eye", name: "Visual building identification", need: "Help students confirm they are at the right place",
+    finding: <>Only <span className="n">15 of 45</span> rated campus signs clear</>,
+    response: <>Building photos on the map</> },
+  { icon: "indoor", name: "Indoor wayfinding", need: "Guide students past the front door", later: true,
+    finding: <><span className="n">64%</span> struggled to find rooms<br /><span className="n">40%</span> said directions stop at the building</>,
+    response: <>Not planned yet: floor maps are a much larger build, so they come after the core app</> },
+];
 import SectionIndex from "@/components/SectionIndex";
 
 const SECTIONS = [
@@ -63,31 +81,31 @@ export default function EricaNav() {
     <main className="page read">
       <header className="page-head">
         <span className="sign"><b>ERICA</b>Research · Campus wayfinding</span>
-        <h1>Why students get lost at ERICA, and what a map app should do about it</h1>
-        <p className="lede">A survey of 45 Hanyang ERICA students showed that the hardest part of getting to class is not finding the building. It is finding the room once you are inside, especially for students who don&apos;t read Korean.</p>
+        <h1>Why students get lost on campus?</h1>
+        <p className="lede">We surveyed 45 Hanyang ERICA students.<br />56% couldn&apos;t search for a building by its number, and Naver Map, the app most of them use, worked far worse for students who don&apos;t read Korean.</p>
         <Catalog
-          head={["ERICA Nav", "Spring 2026"]}
+          head={["ERICA Nav", "Case study"]}
           rows={[
-            ["My role", "Questionnaire design, research, analysis, presentation"],
-            ["Team", "Team project, Human-Computer System Design course"],
+            ["My role", "Survey Design, Analysis, Presentation"],
+            ["Module", "Human-Computer System Design"],
             ["Timeline", "Spring 2026"],
-            ["Methods", "Literature review, survey, χ², binomial test, one-way ANOVA"],
+            ["Methods", "Survey, χ², binomial test, ANOVA"],
           ]}
         />
       </header>
 
-      <section className="doc" id="question">
+      <section className="doc duo" id="question">
         <p className="eyebrow">The question</p>
-        <h2>What makes it hard to find your way around ERICA, and does knowing Korean change that?</h2>
-        <p>ERICA timetables list classes only as a building number and a room number. The popular map apps are built for streets, not campuses. We wanted to know where exactly students lose their way, and whether international students struggle more than Korean students.</p>
+        <h2>Does knowing Korean influence your ERICA wayfinding experience?</h2>
+        <p className="viz">ERICA timetables list classes only by building and room number, and popular map apps are built for streets, not campuses. We wanted to find where students lose their way, and whether international students struggle more.</p>
       </section>
 
-      <section className="doc" id="key">
+      <section className="doc duo" id="key">
         <p className="eyebrow">Key finding</p>
         <div className="keyfig">
           <div className="num">64<small>%</small></div>
-          <p>of students had trouble finding a classroom or facility inside a building. Current map apps stop at the front door, which makes indoor wayfinding the clearest gap to close.</p>
-          <p className="note">29 of 45 respondents · binomial test vs 50%, one-tailed p = 0.036</p>
+          <p>of students had trouble finding a room inside a building.</p>
+          <p className="note">Binomial test vs 50%, one-tailed p = 0.036</p>
         </div>
         <Respondents />
       </section>
@@ -95,13 +113,14 @@ export default function EricaNav() {
       <section className="doc" id="method">
         <p className="eyebrow">Method</p>
         <div className="method">
-          <div><strong>45</strong><span>students completed an online questionnaire</span></div>
-          <div><strong>3 × 15</strong><span>equal groups by Korean ability at admission: native, some Korean, no Korean</span></div>
-          <div><strong>3</strong><span>question sections: language and campus familiarity, navigation experience, map tools</span></div>
-          <div><strong>2</strong><span>papers reviewed: Yvette &amp; Song (2026) on a bilingual campus app, and Li &amp; Giudice (2013) on 2D vs 3D indoor maps</span></div>
+          <div><strong>45</strong><span>students, online questionnaire</span></div>
+          <div><strong>3 × 15</strong><span>groups by Korean ability: native, some, none</span></div>
+          <div><strong>3</strong><span>sections: familiarity, navigation, map tools</span></div>
+          <div><strong>2</strong><span>papers: a bilingual campus app (Yvette &amp; Song, 2026) and 2D vs 3D indoor maps (Li &amp; Giudice, 2013)</span></div>
         </div>
       </section>
 
+      <div className="doc-row">
       <section className="doc finding" id="f1">
           <p className="eyebrow">Finding 1</p>
           <h3>Finding the room is as hard as or harder than finding the building</h3>
@@ -113,8 +132,8 @@ export default function EricaNav() {
               { name: "Trouble finding a room inside it", bars: room.map((n, i) => ({ value: pct(n, 15), text: `${Math.round(pct(n, 15))}%`, tip: `${g(i)}: ${n} of 15 had trouble finding a room`, hi: true })) },
             ]}
           />
-          <p>Even native Korean speakers, who had the least trouble between buildings, struggled once inside (33% vs 60%). Building-level difficulty rose as Korean ability fell (33% to 67%), but that trend was not statistically significant with this sample.</p>
-          <p className="note">Rooms: binomial p = 0.036 · Buildings by group: χ²(2, N = 45) = 3.379, p = 0.185</p>
+          <p>Native speakers had the least trouble between buildings but still struggled inside (33% vs 60%). Building trouble rose as Korean ability fell (33% to 67%), though not significantly.</p>
+          <p className="note">Rooms: binomial p = 0.036<br />Buildings by group: χ²(2, N = 45) = 3.379, p = 0.185</p>
         </section>
 
       <section className="doc finding" id="f2">
@@ -125,63 +144,52 @@ export default function EricaNav() {
             groups={groups} max={5} ticks={[0, 1, 2, 3, 4, 5]}
             series={[{ name: "Naver Map helpfulness", bars: naver.map((v, i) => ({ value: v, text: v.toFixed(2), tip: `${g(i)}: mean ${v.toFixed(2)} out of 5`, hi: i === 2 })) }]}
           />
-          <p>58% of students use Naver Map on campus. Among them, native speakers rated it 4.39 out of 5, while students with no Korean rated it 2.75. Every group rated the official campus map about the same (4.00, 4.00 and 3.75, no significant difference). That suggests the gap comes from the app, not the students.</p>
-          <p className="note">One-way ANOVA with Scheffé post hoc · native vs some Korean p = 0.028 · native vs no Korean p = 0.001 · some vs no Korean p = 0.151</p>
+          <p>58% of students use Naver Map. Native speakers rated it 4.39 out of 5, students with no Korean 2.75. The official campus map scored about the same in every group (4.00, 4.00, 3.75), which suggests the app causes the gap.</p>
+          <p className="note">One-way ANOVA with Scheffé post hoc<br />Native vs some Korean: p = 0.028<br />Native vs no Korean: p = 0.001<br />Some vs no Korean: p = 0.151</p>
         </section>
+      </div>
 
+      <div className="doc-row">
       <section className="doc finding" id="f3">
           <p className="eyebrow">Finding 3</p>
           <h3>Building numbers are the main source of confusion</h3>
           <HChart caption="Problems students reported with map apps on campus, share of 45 respondents" rows={of45(problems)} />
-          <p>The two most common problems were both about building numbers: 56% could not search for a building by its number, and 49% could not match the number on their timetable to a building on the map. Campus signs did not fill the gap: only 15 of 45 students rated them clear.</p>
-          <p className="note">Multi-select, share of 45 respondents · Sign clarity: 15 rated clear or very clear, 21 neutral, 9 unclear</p>
+          <p>The top two problems both involve building numbers: 56% couldn&apos;t search by number, and 49% couldn&apos;t match their timetable to the map. Only 15 of 45 rated campus signs clear.</p>
+          <p className="note">Multi-select, share of 45 respondents<br />Sign clarity, clear or very clear: 15<br />Neutral: 21<br />Unclear: 9</p>
         </section>
 
       <section className="doc finding" id="f4">
           <p className="eyebrow">Finding 4</p>
           <h3>The problem peaks in the first weeks of the semester</h3>
           <HChart caption="Situations in which students found campus navigation difficult, share of 45 respondents" rows={of45(situations)} />
-          <p>Almost every student (89%) said navigation was hardest in the first weeks of the semester, and 71% said it was hard when visiting a building for the first time. Students also started with low familiarity: in their first months, the average rating was below 2 out of 5 in every group.</p>
-          <p className="note">Multi-select, share of 45 respondents · First-months familiarity (1 to 5): native 1.87, some Korean 1.60, no Korean 1.47</p>
+          <p>89% found the first weeks of semester hardest, and 71% struggled in buildings they hadn&apos;t visited before. Early campus familiarity averaged below 2 out of 5 in every group.</p>
+          <p className="note">Multi-select, share of 45 respondents<br />First-months familiarity (1 to 5), native: 1.87<br />Some Korean: 1.60<br />No Korean: 1.47</p>
         </section>
+      </div>
 
       <section className="doc" id="design">
         <p className="eyebrow">From data to design</p>
         <h2>Each requirement traces back to a finding</h2>
-        <p>The course prototype tested these ideas. I am now building them into a full app, starting with the campus map, then indoor floor maps.</p>
-        <div className="tablewrap">
-          <table className="wide">
-            <thead><tr><th scope="col">Finding</th><th scope="col">Requirement</th><th scope="col">How ERICA Nav responds</th></tr></thead>
-            <tbody>
-              <tr>
-                <td><span className="n">56%</span> couldn&apos;t search by building number; Naver Map rated <span className="n">2.75/5</span> by non-Korean readers</td>
-                <td><strong>Multilingual search</strong>Search by English name, Korean name or building number</td>
-                <td><span className="chip wip">In development</span>Search by number or name with an EN / <span lang="ko">한</span> toggle</td>
-              </tr>
-              <tr>
-                <td><span className="n">49%</span> couldn&apos;t match timetable numbers to the map; <span className="n">89%</span> struggled most in the first weeks</td>
-                <td><strong>Building number and map integration</strong>Connect the timetable to the map</td>
-                <td><span className="chip wip">In development</span>Personal timetable, turn-by-turn routes, campus shuttle schedule</td>
-              </tr>
-              <tr>
-                <td>Only <span className="n">15 of 45</span> rated campus signs clear</td>
-                <td><strong>Visual building identification</strong>Help students confirm they are at the right place</td>
-                <td><span className="chip wip">In development</span>Building photos on the map</td>
-              </tr>
-              <tr>
-                <td><span className="n">64%</span> struggled to find rooms; <span className="n">40%</span> said directions stop at the building</td>
-                <td><strong>Indoor wayfinding</strong>Guide students past the front door</td>
-                <td><span className="chip next">Next</span>Floor maps and room-level directions</td>
-              </tr>
-            </tbody>
-          </table>
+        <p>The course prototype tested these ideas. I&apos;m now building the first three into a full app, starting with the campus map.</p>
+        <div className="reqs">
+          {REQS.map((r) => (
+            <article className="req" key={r.name}>
+              <div className="req-head">
+                <span className="req-icon">{REQ_ICONS[r.icon]}</span>
+                <h3>{r.name}</h3>
+                <p>{r.need}</p>
+              </div>
+              <div className="req-part"><span className="label">Finding</span><p>{r.finding}</p></div>
+              <div className="req-part"><span className="label">How ERICA Nav responds</span><span className={`chip ${r.later ? "next" : "wip"}`}>{r.later ? "Later" : "In development"}</span><p>{r.response}</p></div>
+            </article>
+          ))}
         </div>
       </section>
 
-      <section className="doc" id="validation">
+      <section className="doc duo" id="validation">
         <p className="eyebrow">Validation</p>
         <h2>The prototype scored above 4 out of 5 in every group</h2>
-        <p>We tested the course prototype with 10 students per language group, on a scale of 1 to 5. Students with no Korean gave the highest usefulness and satisfaction scores, the group the current apps serve worst. The prototype was rated on its own, not side by side with Naver Map, so these scores show it was well received, not that it beats the current apps.</p>
+        <p>10 students per language group rated the course prototype from 1 to 5. Students with no Korean gave it the highest usefulness and satisfaction scores. There was no side-by-side test with Naver Map, so this doesn&apos;t show it beats existing apps.</p>
         <div className="tablewrap">
           <table>
             <caption className="sr-only">Prototype ratings by group, mean on a scale of 1 to 5, 10 students per group</caption>
@@ -195,13 +203,13 @@ export default function EricaNav() {
         </div>
       </section>
 
-      <section className="doc" id="reflection">
+      <section className="doc duo" id="reflection">
         <p className="eyebrow">Reflection</p>
         <h2>What I would do differently</h2>
         <ul className="plain">
-          <li>Recruit more participants. Some subgroups were very small, which weakens the ANOVA result.</li>
-          <li>Measure behaviour, not only opinions. A timed task, such as walking from the main gate to a specific room, would show real navigation time instead of self-reported difficulty.</li>
-          <li>Ask about indoor navigation in more detail. It turned out to be the biggest problem, which is why indoor maps are the next thing I am building.</li>
+          <li>Recruit more participants. Small subgroups weaken the ANOVA.</li>
+          <li>Time real journeys, like walking from the main gate to a room, instead of relying on self-reported difficulty.</li>
+          <li>Ask more about indoor navigation. It affected 64% of students but got only two questions.</li>
         </ul>
       </section>
 

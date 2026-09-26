@@ -77,7 +77,7 @@ Inspired by campus wayfinding signage: clear, precise, confident. Lots of white 
    - **Bolahh:** "Interface redesign for a live futsal booking and player progression platform." Tags: UI design, Front end.
    - **Graphic design:** "Logos, icons, stickers and motion graphics." Tags: Branding, Motion.
 3. **About (short):** Media Technology at Hanyang University ERICA, AI & Data Analytics and UI/UX tracks. Tools: Python, Excel, SPSS, Figma, Illustrator, After Effects.
-4. **Contact:** hakeemwafiq04@gmail.com (show it as selectable text with a copy button), GitHub github.com/waaafiq, LinkedIn `TODO: URL`.
+4. **Contact:** hakeemwafiq04@gmail.com (show it as selectable text with a copy button), GitHub github.com/waaafiq.
 
 Card interaction: a subtle lift on hover or tap and a preview of the key visual. No heavy effects.
 
@@ -101,20 +101,20 @@ A finished version of this page already exists as `erica-nav-research.html` (sup
 3. **Building numbers are the main source of confusion.** Horizontal bars, share of 45: can't search by building number 25 (56%), can't match timetable number to the map 22 (49%), directions stop at the building not the room 18 (40%), can't find entrance or floor 10 (22%), other 5 (11%). Sign clarity: 15 rated clear or very clear, 21 neutral, 9 unclear.
 4. **The problem peaks in the first weeks of the semester.** Horizontal bars: first weeks of the semester 40 (89%), visiting a building for the first time 32 (71%), unfamiliar building name 14 (31%), other 4 (9%). First-months familiarity (1 to 5): native 1.87, some Korean 1.60, no Korean 1.47.
 
-**Finding to requirement to feature table** (status chips: "In development" or "Next"):
+**Finding to requirement to feature table** (status chips: "In development" or "Later"):
 
 | Finding | Requirement | How ERICA Nav responds | Status |
 |---|---|---|---|
 | 56% couldn't search by building number; Naver Map rated 2.75/5 by non-Korean readers | Multilingual search | Search by number or name with an EN / 한 toggle | In development |
 | 49% couldn't match timetable numbers to the map; 89% struggled most in the first weeks | Building number and map integration | Personal timetable, turn-by-turn routes, campus shuttle schedule | In development |
 | Only 15 of 45 rated campus signs clear | Visual building identification | Building photos on the map | In development |
-| 64% struggled to find rooms; 40% said directions stop at the building | Indoor wayfinding | Floor maps and room-level directions | Next |
+| 64% struggled to find rooms; 40% said directions stop at the building | Indoor wayfinding | Not planned yet, comes after the core app | Later |
 
-The app is **not finished**: the campus map is in progress and indoor maps haven't started. Never describe any feature as live. No screenshots exist yet: leave `TODO:` image slots only if the owner asks for them.
+The app is **not finished**: the campus map is in progress and indoor maps are not planned yet (the hardest build, last on the list). Don't promote indoor navigation as an upcoming feature. Never describe any feature as live. No screenshots exist yet: leave `TODO:` image slots only if the owner asks for them.
 
 **Validation:** course prototype tested with 10 students per group (1 to 5). Usability 4.03 / 4.27 / 4.31, usefulness 4.16 / 4.34 / 4.57, satisfaction 4.44 / 4.37 / 4.56 (native / some Korean / no Korean).
 
-**Reflection:** more participants (some subgroups were very small); measure behaviour with timed tasks, not only opinions; ask about indoor navigation in more detail, which is why indoor maps are the next thing being built.
+**Reflection:** more participants (some subgroups were very small); measure behaviour with timed tasks, not only opinions; ask about indoor navigation in more detail (only two survey questions covered it).
 
 **Claims that must never appear** (not supported by the data): that lower Korean proficiency made students take longer (time was never measured); that the prototype made buildings easier to find (never compared or timed); that bilingual or icon labels got higher ratings (never compared).
 
@@ -134,7 +134,7 @@ The app is **not finished**: the campus map is in progress and indoor maps haven
 
 ## 9. Graphic design page
 
-The owner hasn't picked final pieces yet. Build the layout and interactions with clearly labelled `TODO:` slots. Target: 3 logos, 1 icon set, 1 sticker sheet (optional), 2 After Effects shorts.
+The owner hasn't picked final pieces yet. Build the layout and interactions with clearly labelled `TODO:` slots. Target: 3 logos, 1 sticker sheet (optional), 2 After Effects ads (done: Papago midterm, evian final). Icon set section removed by the owner.
 
 - **Logos (3 slots):** each has a mockup switcher (tap or hover to cycle the logo across a sign, a shirt and an app icon), a "Show construction" toggle revealing the grid and a one-line concept note, and colour variants (light, dark, one-colour).
 - **Icon set:** grid of icons. Each animates on hover or tap (for example an SVG line draw-in). Clicking one opens it at real sizes, 16, 24 and 48 px. Filled or outline toggle only if both versions are supplied.
@@ -143,7 +143,7 @@ The owner hasn't picked final pieces yet. Build the layout and interactions with
 
 ## 10. About page
 
-Short bio (`TODO:` final text from the owner), resume PDF download, email with copy button, GitHub, LinkedIn `TODO:`. Languages: Malay (native), English (fluent), Korean (limited conversational).
+Short bio (`TODO:` final text from the owner), resume PDF download, email with copy button, GitHub. Languages: Malay (native), English (fluent), Korean (limited conversational).
 
 ## 11. Done means
 
@@ -158,4 +158,4 @@ Short bio (`TODO:` final text from the owner), resume PDF download, email with c
 
 - `erica-nav-research.html`: the finished ERICA Nav research page, to port.
 - `ERICA_Nav_Research_Presentation.pdf`: trimmed course presentation, linked from the ERICA Nav page.
-- Still to come from the owner: logo, icon, sticker and After Effects files; Bolahh before and after images; resume PDF; LinkedIn URL; About text.
+- Still to come from the owner: logo, icon, sticker and After Effects files; Bolahh before and after images; About text.

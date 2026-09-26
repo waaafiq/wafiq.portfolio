@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef } from "react";
 import { TAB_ICONS } from "./TabIcons";
 
 // Each page is a folder in the sorter. The active folder's tab comes to the front and its colour fills the file.
@@ -13,64 +13,106 @@ export const FOLDERS = [
   { href: "/about", label: "About", mid: "About", short: "About", c: "about" },
 ];
 
+// Strong ease-in-out: slow start, quick through the middle, soft landing.
+const ease = (t: number) => (t < 0.5 ? 8 * t ** 4 : 1 - (-2 * t + 2) ** 4 / 2);
+
 export default function Cabinet({ children }: { children: React.ReactNode }) {
   const path = usePathname();
   const activeIndex = Math.max(0, FOLDERS.findIndex((f) => f.href === path));
   const active = FOLDERS[activeIndex];
-  const [hovered, setHovered] = useState<number | null>(null);
-  const target = hovered ?? activeIndex;
-  // Peek: the hovered folder's file edge rises behind the open file. Remember the last one so it keeps its colour while sinking.
-  const peeking = hovered !== null && hovered !== activeIndex;
-  const [peekFolder, setPeekFolder] = useState(active.c);
-  useLayoutEffect(() => { if (peeking) setPeekFolder(FOLDERS[hovered].c); }, [peeking, hovered]);
 
-  // Chevron marker: sits above the open tab, slides to whichever tab is hovered or focused, and slides back on leave.
+  // Chevron marker: rests on the open tab. When the open folder changes it slides from the old tab to the new one,
+  // lifting each tab it passes over. Driven imperatively so the slide never re-renders the page.
   const tabsRef = useRef<HTMLElement>(null);
+  const markerRef = useRef<HTMLSpanElement>(null);
   const tabRefs = useRef<(HTMLAnchorElement | null)[]>([]);
-  const [x, setX] = useState<number | null>(null);
-  const [ready, setReady] = useState(false);
+  const fromIndex = useRef(activeIndex);
+  const xRef = useRef<number | null>(null);
+
+  const centre = (i: number) => {
+    const t = tabRefs.current[i], nav = tabsRef.current;
+    if (!t || !nav) return null;
+    const r = t.getBoundingClientRect(), n = nav.getBoundingClientRect();
+    return r.left - n.left + r.width / 2;
+  };
+  const setX = (x: number) => {
+    xRef.current = x;
+    if (!markerRef.current) return;
+    markerRef.current.style.transform = `translateX(${x}px)`;
+    markerRef.current.setAttribute("data-placed", "");
+  };
+  // Restart the bob so it begins once the slide has landed.
+  const bob = (delayMs: number) => {
+    const svg = markerRef.current?.querySelector("svg");
+    if (!svg) return;
+    svg.style.animation = "none";
+    void svg.getBoundingClientRect();
+    svg.style.animation = "";
+    svg.style.animationDelay = `${delayMs}ms`;
+  };
+
+  // Keep the chevron on the open tab through resizes and font loads.
   useLayoutEffect(() => {
-    const place = () => {
-      const t = tabRefs.current[target], nav = tabsRef.current;
-      if (!t || !nav) return;
-      const r = t.getBoundingClientRect(), n = nav.getBoundingClientRect();
-      setX(r.left - n.left + r.width / 2);
-    };
-    place();
+    const place = () => { const x = centre(activeIndex); if (x !== null) setX(x); };
     const ro = new ResizeObserver(place);
     if (tabsRef.current) ro.observe(tabsRef.current);
     document.fonts?.ready.then(place);
     return () => ro.disconnect();
-  }, [target]);
-  // Enable the glide only after the first placement, so nothing animates on page load.
+  }, [activeIndex]);
+
+  // Slide on folder change.
   useLayoutEffect(() => {
-    if (x === null || ready) return;
-    const id = requestAnimationFrame(() => setReady(true));
-    return () => cancelAnimationFrame(id);
-  }, [x, ready]);
+    const from = fromIndex.current, to = activeIndex;
+    fromIndex.current = to;
+    const end = centre(to);
+    if (end === null) return;
+    const start = from === to || xRef.current === null ? end : xRef.current;
+    const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (start === end || reduced) { setX(end); bob(0); return; }
+
+    const steps = Math.abs(to - from);
+    const duration = 600 + 300 * steps; // ms: 0.9s for one tab over, 1.8s from end to end
+    const tabs = tabRefs.current;
+    const clearPassing = () => tabs.forEach((t) => t?.removeAttribute("data-passing"));
+    bob(duration);
+    const t0 = performance.now();
+    let raf = 0;
+    const frame = (now: number) => {
+      const p = Math.min(1, (now - t0) / duration);
+      const x = start + (end - start) * ease(p);
+      setX(x);
+      // Lift whichever tab the chevron is crossing (not the tab it left or the one it is heading to).
+      const nav = tabsRef.current!.getBoundingClientRect();
+      tabs.forEach((t, i) => {
+        if (!t) return;
+        const r = t.getBoundingClientRect();
+        const over = x >= r.left - nav.left && x <= r.right - nav.left;
+        if (over && i !== to && i !== from && p < 1) t.setAttribute("data-passing", ""); else t.removeAttribute("data-passing");
+      });
+      if (p < 1) raf = requestAnimationFrame(frame); else clearPassing();
+    };
+    raf = requestAnimationFrame(frame);
+    return () => { cancelAnimationFrame(raf); clearPassing(); };
+  }, [activeIndex]);
 
   return (
     <div className="cabinet" data-folder={active.c}>
-      <nav className="tabs" aria-label="Main" ref={tabsRef} onPointerLeave={() => setHovered(null)}>
-        {x !== null && (
-          <span className="tab-marker" data-ready={ready || undefined} style={{ transform: `translateX(${x}px)` }} aria-hidden="true">
-            <svg key={target} viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" /></svg>
-          </span>
-        )}
+      <nav className="tabs" aria-label="Main" ref={tabsRef}>
+        <span className="tab-marker" ref={markerRef} aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" /></svg>
+        </span>
         {FOLDERS.map((f, i) => (
           <Link key={f.href} href={f.href} className="tab" data-folder={f.c} ref={(el) => { tabRefs.current[i] = el; }}
-            aria-current={i === activeIndex && path === f.href ? "page" : undefined}
-            onPointerEnter={() => setHovered(i)} onFocus={() => setHovered(i)} onBlur={() => setHovered(null)}>
+            aria-current={i === activeIndex && path === f.href ? "page" : undefined}>
             {TAB_ICONS[f.c]}
             <span className="tab-label"><span className="full">{f.label}</span><span className="mid" aria-hidden="true">{f.mid}</span><span className="short" aria-hidden="true">{f.short}</span></span>
           </Link>
         ))}
       </nav>
-      <div className="peek-anchor" aria-hidden="true">
-        <div className="peek" data-folder={peekFolder} data-on={peeking || undefined} />
-      </div>
-      <div className="folder">
-        <div className="sheet" id="main">{children}</div>
+      <div className="folder-stack">
+        <div className="folder">
+          <div className="sheet" id="main">{children}</div>
+        </div>
       </div>
     </div>
   );

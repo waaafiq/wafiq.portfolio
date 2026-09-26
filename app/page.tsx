@@ -58,7 +58,6 @@ export default function Home() {
             ["Tools", "Python, Excel, SPSS, Figma, Illustrator, After Effects"],
             ["Email", <CopyEmail key="e" />],
             ["GitHub", <a key="g" href="https://github.com/waaafiq">github.com/waaafiq</a>],
-            ["LinkedIn", <span key="l" className="todo">TODO: LinkedIn URL</span>],
           ]}
         />
       </div>

@@ -17,14 +17,11 @@ export default function About() {
         <Catalog
           head={["Hakeem Wafiq", "Hanyang ERICA"]}
           rows={[
-            ["Study", "Media Technology"],
-            ["Tracks", "AI & Data Analytics, UI/UX"],
             ["Tools", "Python, Excel, SPSS, Figma, Illustrator, After Effects"],
             ["Languages", "Malay (native), English (fluent), Korean (limited conversational)"],
             ["Resume", <ResumeButton key="r" />],
             ["Email", <CopyEmail key="e" />],
             ["GitHub", <a key="g" href="https://github.com/waaafiq">github.com/waaafiq</a>],
-            ["LinkedIn", <span key="l" className="todo">TODO: LinkedIn URL</span>],
           ]}
         />
       </header>

@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const MOCKS = ["Sign", "Shirt", "App icon"] as const;
 const VARIANTS = [["light", "Light"], ["dark", "Dark"], ["mono", "One colour"]] as const;
@@ -44,47 +44,6 @@ export function LogoSlot({ n }: { n: number }) {
   );
 }
 
-// Placeholder outlines until the owner supplies the icon set. pathLength lets the draw-in animation work on any shape.
-const ICONS = [
-  <circle key="c" cx="12" cy="12" r="8" pathLength={100} />,
-  <rect key="r" x="4" y="4" width="16" height="16" rx="3" pathLength={100} />,
-  <path key="t" d="M12 4 L20 19 H4 Z" pathLength={100} />,
-  <path key="p" d="M5 12 H19 M12 5 V19" pathLength={100} />,
-  <path key="w" d="M3 15 Q7.5 7 12 15 T21 15" pathLength={100} />,
-  <path key="h" d="M4 11 L12 4 L20 11 V20 H4 Z" pathLength={100} />,
-];
-function Icon({ i, size }: { i: number; size: number }) {
-  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{ICONS[i]}</svg>;
-}
-
-export function IconSet() {
-  const dlg = useRef<HTMLDialogElement>(null);
-  const [open, setOpen] = useState(0);
-  return (
-    <>
-      <ul className="icon-grid">
-        {ICONS.map((_, i) => (
-          <li key={i}>
-            <button type="button" className="icon-btn" aria-label={`Placeholder icon ${i + 1}, view at real sizes`}
-              onClick={() => { setOpen(i); dlg.current?.showModal(); }}>
-              <Icon i={i} size={40} />
-            </button>
-          </li>
-        ))}
-      </ul>
-      <dialog ref={dlg} aria-labelledby="icon-dlg-h" onClick={(e) => e.target === dlg.current && dlg.current.close()}>
-        <h2 id="icon-dlg-h" style={{ fontSize: "1.2rem" }}>Placeholder icon {open + 1} at real sizes</h2>
-        <div className="sizes">
-          {[16, 24, 48].map((s) => (
-            <figure key={s}><Icon i={open} size={s} /><figcaption className="label">{s} px</figcaption></figure>
-          ))}
-        </div>
-        <form method="dialog"><button className="btn small">Close</button></form>
-      </dialog>
-    </>
-  );
-}
-
 const START = [[6, 10], [36, 30], [64, 8], [14, 58], [58, 55]];
 
 export function StickerBoard() {
@@ -122,25 +81,43 @@ export function StickerBoard() {
   );
 }
 
-export function ShortClip({ n, src, poster }: { n: number; src?: string; poster?: string }) {
+const I = { width: 18, height: 18, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": true } as const;
+const ICON = {
+  play: <svg {...I}><path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z" /></svg>,
+  pause: <svg {...I}><rect x="14" y="3" width="5" height="18" rx="1" /><rect x="5" y="3" width="5" height="18" rx="1" /></svg>,
+  sound: <svg {...I}><path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z" /><path d="M16 9a5 5 0 0 1 0 6" /><path d="M19.364 18.364a9 9 0 0 0 0-12.728" /></svg>,
+  muted: <svg {...I}><path d="M11 4.702a.7.7 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.7.7 0 0 0 11 19.298z" /><path d="m16.5 14.5 5-5" /><path d="m16.5 9.5 5 5" /></svg>,
+};
+const mmss = (t: number) => `${Math.floor(t / 60)}:${String(Math.floor(t % 60)).padStart(2, "0")}`;
+
+// Video with a glass control bar: play/pause, slim scrubber, mute. Starts muted; tap the video to play or pause.
+export function ShortClip({ src, poster, title, ratio = "16 / 9", children }: { src: string; poster: string; title: string; ratio?: string; children?: React.ReactNode }) {
   const vid = useRef<HTMLVideoElement>(null);
   const [t, setT] = useState(0);
+  const [dur, setDur] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const [muted, setMuted] = useState(true);
+  // The metadata can load before hydration, so read the duration once on mount too.
+  useEffect(() => { const v = vid.current; if (v && v.readyState >= 1) setDur(v.duration); }, []);
   const toggle = () => { const v = vid.current; if (v) (v.paused ? v.play() : v.pause()); };
+  const mute = () => { const v = vid.current; if (v) { v.muted = !v.muted; setMuted(v.muted); } };
   return (
-    <figure className="clip" style={{ margin: 0 }}>
-      {src ? (
-        <button type="button" className="screen" onClick={toggle} aria-label={`Play or pause short ${n}`}
-          onPointerEnter={(e) => e.pointerType === "mouse" && vid.current?.play()}
-          onPointerLeave={(e) => e.pointerType === "mouse" && vid.current?.pause()}>
-          <video ref={vid} src={src} poster={poster} muted loop playsInline preload="metadata"
-            onTimeUpdate={(e) => setT(e.currentTarget.currentTime / (e.currentTarget.duration || 1))} />
-        </button>
-      ) : (
-        <div className="screen"><span className="todo">TODO: After Effects short {n} and poster frame</span></div>
-      )}
-      <input type="range" min={0} max={1} step={0.001} value={t} disabled={!src} aria-label={`Scrub short ${n}`}
-        onChange={(e) => { const v = vid.current; setT(+e.target.value); if (v?.duration) v.currentTime = +e.target.value * v.duration; }} />
-      <figcaption className="label">TODO: title for short {n}</figcaption>
-    </figure>
+    <article className="clip">
+      <div className="player" style={{ aspectRatio: ratio }} data-playing={playing || undefined}>
+        <video ref={vid} src={src} poster={poster} muted playsInline loop preload="metadata" onClick={toggle}
+          onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)}
+          onLoadedMetadata={(e) => setDur(e.currentTarget.duration)} onDurationChange={(e) => setDur(e.currentTarget.duration)}
+          onTimeUpdate={(e) => setT(e.currentTarget.currentTime)} />
+        <div className="player-bar glass">
+          <button type="button" onClick={toggle} aria-label={playing ? `Pause ${title}` : `Play ${title}`}>{playing ? ICON.pause : ICON.play}</button>
+          <input type="range" min={0} max={dur || 1} step={0.01} value={t} aria-label={`Scrub ${title}`} aria-valuetext={`${mmss(t)} of ${mmss(dur)}`}
+            style={{ "--p": `${dur ? (t / dur) * 100 : 0}%` } as React.CSSProperties}
+            onChange={(e) => { const v = vid.current; const x = +e.target.value; setT(x); if (v) v.currentTime = x; }} />
+          <span className="player-time">{mmss(t)} / {mmss(dur)}</span>
+          <button type="button" onClick={mute} aria-label={muted ? "Turn sound on" : "Mute"} aria-pressed={!muted}>{muted ? ICON.muted : ICON.sound}</button>
+        </div>
+      </div>
+      {children && <div className="clip-info">{children}</div>}
+    </article>
   );
 }
