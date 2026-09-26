@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, Atkinson_Hyperlegible, JetBrains_Mono } from "next/font/google";
 import Link from "next/link";
-import Nav from "@/components/Nav";
+import Cabinet from "@/components/Cabinet";
 import "./globals.css";
 
 const display = Bricolage_Grotesque({ subsets: ["latin"], weight: ["500", "700"], variable: "--f-display" });
@@ -26,9 +26,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <a className="skip" href="#main">Skip to content</a>
         <header className="site-head">
           <Link href="/" className="home-link sign"><b>HW</b>Hakeem Wafiq</Link>
-          <Nav />
+          <span className="label">Data analyst who designs</span>
         </header>
-        <div id="main">{children}</div>
+        <Cabinet>{children}</Cabinet>
         <footer className="site-foot">
           <span>Hakeem Wafiq</span>
           <a href="mailto:hakeemwafiq04@gmail.com">hakeemwafiq04@gmail.com</a>

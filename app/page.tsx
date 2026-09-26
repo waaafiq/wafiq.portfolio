@@ -5,6 +5,8 @@ const work = [
   {
     href: "/work/erica-nav",
     title: "ERICA Nav",
+    folder: "erica",
+    tab: "01 · Case study",
     text: "Research and design for a campus wayfinding app. Survey of 45 students, statistical analysis, and a prototype.",
     tags: ["Data analysis", "UX research", "UI design"],
     preview: <EricaPreview />,
@@ -12,6 +14,8 @@ const work = [
   {
     href: "/work/bolahh",
     title: "Bolahh",
+    folder: "bolahh",
+    tab: "02 · Redesign",
     text: "Interface redesign for a live futsal booking and player progression platform.",
     tags: ["UI design", "Front end"],
     preview: <BolahhPreview />,
@@ -19,6 +23,8 @@ const work = [
   {
     href: "/work/graphic-design",
     title: "Graphic design",
+    folder: "graphic",
+    tab: "03 · Visual",
     text: "Logos, icons, stickers and motion graphics.",
     tags: ["Branding", "Motion"],
     preview: <span className="todo">TODO: key visual from the owner</span>,
@@ -43,7 +49,8 @@ export default function Home() {
         <p className="eyebrow" id="work-h">Selected work</p>
         <div className="work-list">
           {work.map((w) => (
-            <Link key={w.href} href={w.href} className="work-card">
+            <Link key={w.href} href={w.href} className="work-card" data-folder={w.folder}>
+              <span className="file-tab" aria-hidden="true">{w.tab}</span>
               <div className="body">
                 <h2>{w.title}</h2>
                 <p>{w.text}</p>
