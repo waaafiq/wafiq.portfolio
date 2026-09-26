@@ -307,3 +307,13 @@ th.rowh { font-family: var(--font-body); font-size: .93rem; text-transform: none
 .tab { flex: 1 1 0; min-width: 0; justify-content: center; }
 .tab:last-child { margin-right: 0; }
 @media (max-width: 560px) { .tabs { padding: 0 4px; } }
+
+/* Folder spans the whole screen; tabs keep their width and sit on the left with some room */
+.cabinet { max-width: none; padding: 0 12px; }
+.tabs { max-width: calc(var(--page) + 40px); padding: 0 0 0 40px; }
+.site-head { max-width: none; padding-left: 64px; padding-right: 32px; }
+@media (max-width: 560px) {
+  .cabinet { padding: 0 6px; }
+  .tabs { padding-left: 12px; }
+  .site-head { padding-left: 20px; padding-right: 20px; }
+}
