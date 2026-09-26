@@ -301,3 +301,9 @@ th.rowh { font-family: var(--font-body); font-size: .93rem; text-transform: none
 
 @media (prefers-reduced-motion: reduce) { .tab, .tab:hover { transform: translateY(5px); } .tab[aria-current="page"] { transform: none; } }
 .work-card:hover, .work-card:active, .work-card:focus-visible { border-color: var(--line); border-top-color: var(--f); }
+
+/* Tabs share the full folder width */
+.tabs { padding: 0 10px; }
+.tab { flex: 1 1 0; min-width: 0; justify-content: center; }
+.tab:last-child { margin-right: 0; }
+@media (max-width: 560px) { .tabs { padding: 0 4px; } }
