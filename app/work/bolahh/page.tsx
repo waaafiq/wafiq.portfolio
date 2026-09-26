@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import PlayerCard from "@/components/PlayerCard";
 import Compare from "@/components/Compare";
+import Catalog from "@/components/Catalog";
 
 export const metadata: Metadata = {
   title: "Bolahh",
@@ -12,15 +13,22 @@ const todo = (what: string) => <span className="todo">TODO: {what} image from th
 export default function Bolahh() {
   return (
     <main className="page read">
-      <header className="stack" style={{ gap: 20 }}>
+      <header className="page-head">
         <span className="sign"><b>UI</b>Redesign · Sep 2026</span>
         <h1>Bolahh</h1>
         <p className="lede">Redesign of a live futsal booking and player progression platform.</p>
-        <p><a href="https://bolahh.com">bolahh.com</a></p>
-        <ul className="tags" aria-label="Tags"><li>UI design</li><li>Front end</li></ul>
+        <Catalog
+          head={["Bolahh", "Sep 2026"]}
+          rows={[
+            ["Project", "Interface redesign"],
+            ["Live site", <a key="l" href="https://bolahh.com">bolahh.com</a>],
+            ["Disciplines", "UI design, Front end"],
+            ["Tools", "Figma, AI-assisted development tools"],
+          ]}
+        />
       </header>
 
-      <section>
+      <section className="doc">
         <p className="eyebrow">What I did</p>
         <ul className="plain">
           <li>Redesigned the player cards, adding spin and tilt interactions.</li>
@@ -29,14 +37,14 @@ export default function Bolahh() {
         </ul>
       </section>
 
-      <section>
+      <section className="doc">
         <p className="eyebrow">Try it</p>
         <h2>A player card you can spin</h2>
         <p>Drag the card to spin it, or tilt it by moving your pointer over it. Let go and it settles back.</p>
         <PlayerCard />
       </section>
 
-      <section>
+      <section className="doc">
         <p className="eyebrow">Before and after</p>
         <h2>Landing screen</h2>
         <Compare label="Landing screen" before={todo("before landing screen")} after={todo("after landing screen")} />
@@ -44,7 +52,7 @@ export default function Bolahh() {
         <Compare label="Player cards" before={todo("before player card")} after={todo("after player card")} />
       </section>
 
-      <section>
+      <section className="doc">
         <p className="eyebrow">Process</p>
         <p>I roughed out the designs in Figma, then built them in code with AI-assisted development tools.</p>
       </section>

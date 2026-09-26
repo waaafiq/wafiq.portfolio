@@ -1,31 +1,37 @@
 import Link from "next/link";
-import Contact, { ResumeButton } from "@/components/Contact";
+import Catalog from "@/components/Catalog";
+import CopyEmail from "@/components/CopyEmail";
+import FileBrowser, { type FileItem } from "@/components/FileBrowser";
+import { ResumeButton } from "@/components/Contact";
 
-const work = [
+const files: FileItem[] = [
   {
     href: "/work/erica-nav",
     title: "ERICA Nav",
-    folder: "erica",
-    tab: "01 · Case study",
     text: "Research and design for a campus wayfinding app. Survey of 45 students, statistical analysis, and a prototype.",
+    kind: "Case study",
+    date: "Spring 2026",
+    folder: "erica",
     tags: ["Data analysis", "UX research", "UI design"],
     preview: <EricaPreview />,
   },
   {
     href: "/work/bolahh",
     title: "Bolahh",
-    folder: "bolahh",
-    tab: "02 · Redesign",
     text: "Interface redesign for a live futsal booking and player progression platform.",
+    kind: "Redesign",
+    date: "Sep 2026",
+    folder: "bolahh",
     tags: ["UI design", "Front end"],
     preview: <BolahhPreview />,
   },
   {
     href: "/work/graphic-design",
     title: "Graphic design",
-    folder: "graphic",
-    tab: "03 · Visual",
     text: "Logos, icons, stickers and motion graphics.",
+    kind: "Visual",
+    date: "TODO",
+    folder: "graphic",
     tags: ["Branding", "Motion"],
     preview: <span className="todo">TODO: key visual from the owner</span>,
   },
@@ -34,46 +40,33 @@ const work = [
 export default function Home() {
   return (
     <main className="page">
-      <section className="hero">
-        <span className="sign"><b>HW</b>Portfolio</span>
-        <h1>Hakeem Wafiq</h1>
-        <p className="line">Data analyst who designs.</p>
-        <p className="lede">I turn research into products people can actually use.</p>
-        <div className="btns">
-          <a className="btn primary" href="#work">View work</a>
-          <ResumeButton />
-        </div>
-      </section>
+      <div className="home-top">
+        <section className="hero">
+          <h1>Hakeem Wafiq</h1>
+          <p className="line">Data analyst who designs.</p>
+          <p className="lede">I turn research into products people can actually use.</p>
+          <div className="btns">
+            <a className="btn primary" href="#work">View work</a>
+            <ResumeButton />
+          </div>
+        </section>
+        <Catalog
+          head={["Hakeem Wafiq", "Portfolio"]}
+          rows={[
+            ["Study", "Media Technology, Hanyang University ERICA"],
+            ["Tracks", "AI & Data Analytics, UI/UX"],
+            ["Tools", "Python, Excel, SPSS, Figma, Illustrator, After Effects"],
+            ["Email", <CopyEmail key="e" />],
+            ["GitHub", <a key="g" href="https://github.com/waaafiq">github.com/waaafiq</a>],
+            ["LinkedIn", <span key="l" className="todo">TODO: LinkedIn URL</span>],
+          ]}
+        />
+      </div>
 
-      <section id="work" aria-labelledby="work-h">
-        <p className="eyebrow" id="work-h">Selected work</p>
-        <div className="work-list">
-          {work.map((w) => (
-            <Link key={w.href} href={w.href} className="work-card" data-folder={w.folder}>
-              <span className="file-tab" aria-hidden="true">{w.tab}</span>
-              <div className="body">
-                <h2>{w.title}</h2>
-                <p>{w.text}</p>
-                <ul className="tags" aria-label="Tags">{w.tags.map((t) => <li key={t}>{t}</li>)}</ul>
-                <span className="go" aria-hidden="true">View project →</span>
-              </div>
-              <div className="preview" aria-hidden="true">{w.preview}</div>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      <section className="split">
-        <div className="stack">
-          <p className="eyebrow">About</p>
-          <p>Media Technology at Hanyang University ERICA, on the AI &amp; Data Analytics and UI/UX tracks.</p>
-          <dl className="kv"><div><dt>Tools</dt><dd>Python, Excel, SPSS, Figma, Illustrator, After Effects</dd></div></dl>
-          <p><Link href="/about">More about me</Link></p>
-        </div>
-        <div className="stack">
-          <p className="eyebrow">Contact</p>
-          <Contact />
-        </div>
+      <section className="doc" id="work">
+        <p className="eyebrow">Selected work</p>
+        <FileBrowser files={files} />
+        <p><Link href="/about">More about me</Link></p>
       </section>
     </main>
   );

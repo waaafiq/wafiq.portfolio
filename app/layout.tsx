@@ -1,27 +1,23 @@
 import type { Metadata, Viewport } from "next";
-import { Bricolage_Grotesque, Atkinson_Hyperlegible, JetBrains_Mono } from "next/font/google";
+import { Bricolage_Grotesque, Plus_Jakarta_Sans, JetBrains_Mono, Roboto_Mono } from "next/font/google";
 import Link from "next/link";
 import Cabinet from "@/components/Cabinet";
 import "./globals.css";
 
 const display = Bricolage_Grotesque({ subsets: ["latin"], weight: ["500", "700"], variable: "--f-display" });
-const body = Atkinson_Hyperlegible({ subsets: ["latin"], weight: ["400", "700"], variable: "--f-body" });
+const body = Plus_Jakarta_Sans({ subsets: ["latin"], weight: ["400", "500", "700"], variable: "--f-body" });
 const mono = JetBrains_Mono({ subsets: ["latin"], weight: ["400", "600"], variable: "--f-mono" });
+const tabFont = Roboto_Mono({ subsets: ["latin"], weight: ["500", "600"], variable: "--f-tab" });
 
 export const metadata: Metadata = {
   title: { default: "Hakeem Wafiq, data analyst who designs", template: "%s · Hakeem Wafiq" },
   description: "Portfolio of Hakeem Wafiq, Media Technology student at Hanyang University ERICA. I turn research into products people can actually use.",
 };
-export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#F5F7FA" },
-    { media: "(prefers-color-scheme: dark)", color: "#0E1522" },
-  ],
-};
+export const viewport: Viewport = { themeColor: "#F4F2EC", colorScheme: "light" };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${display.variable} ${body.variable} ${mono.variable}`}>
+    <html lang="en" className={`${display.variable} ${body.variable} ${mono.variable} ${tabFont.variable}`}>
       <body>
         <a className="skip" href="#main">Skip to content</a>
         <header className="site-head">
