@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Why students get lost at Hanyang ERICA: a 45-student survey and the navigation app it shaped.">
+<title>ERICA Nav Research</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --bg:#F5F7FA; --surface:#FFFFFF; --ink:#12213A; --ink2:#44526A; --muted:#6B778C;
+  --line:#DCE2EB; --grid:#E8ECF2;
+  --accent:#1F4FB5; --accent-soft:#E6EDFA;
+  --s1:#A9BEE6; --s2:#5E84D6; --s3:#1F4FB5; --neutral:#B7C0CE;
+  --sign:#12213A; --sign-ink:#FFFFFF;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0E1522; --surface:#152033; --ink:#E9EEF6; --ink2:#B6C1D3; --muted:#8C99AE;
+    --line:#26344B; --grid:#1F2B3F;
+    --accent:#7FA4F0; --accent-soft:#1B2B47;
+    --s1:#3D5A94; --s2:#5F86DA; --s3:#9DBBF5; --neutral:#4A5870;
+    --sign:#E9EEF6; --sign-ink:#0E1522;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0E1522; --surface:#152033; --ink:#E9EEF6; --ink2:#B6C1D3; --muted:#8C99AE;
+  --line:#26344B; --grid:#1F2B3F;
+  --accent:#7FA4F0; --accent-soft:#1B2B47;
+  --s1:#3D5A94; --s2:#5F86DA; --s3:#9DBBF5; --neutral:#4A5870;
+  --sign:#E9EEF6; --sign-ink:#0E1522;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.6;padding-inline:20px;padding-block:48px 80px}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:64px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.15}
+h1{font-size:clamp(2.1rem,6vw,3.2rem);font-weight:700;letter-spacing:-0.02em}
+h2{font-size:clamp(1.35rem,3.4vw,1.7rem);font-weight:700;letter-spacing:-0.01em}
+h3{font-size:1.2rem;font-weight:700}
+p{margin:0;max-width:65ch}
+.eyebrow{font-family:var(--mono);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.sign{display:inline-flex;align-items:center;gap:10px;background:var(--sign);color:var(--sign-ink);border-radius:6px;padding:6px 12px 6px 6px;font-family:var(--mono);font-size:.8rem;letter-spacing:.04em;align-self:flex-start}
+.sign b{background:var(--accent);color:#fff;border-radius:4px;padding:2px 8px;font-weight:600}
+header{display:flex;flex-direction:column;gap:20px}
+.lede{font-size:1.15rem;color:var(--ink2)}
+.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:20px 28px;border-top:1px solid var(--line);padding-top:20px;margin:0}
+.meta dt{font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.meta dd{margin:0;font-size:.95rem;color:var(--ink)}
+section{display:flex;flex-direction:column;gap:18px}
+.hero{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:32px;display:grid;grid-template-columns:auto 1fr;gap:12px 32px;align-items:center}
+.hero .num{font-family:var(--display);font-weight:700;font-size:clamp(4rem,14vw,6.5rem);line-height:.9;color:var(--accent);letter-spacing:-0.03em}
+.hero .num small{font-size:.45em}
+.hero p{font-size:1.1rem}
+.hero .stat{grid-column:1/-1;font-family:var(--mono);font-size:.8rem;color:var(--muted);border-top:1px solid var(--line);padding-top:12px}
+@media (max-width:560px){.hero{grid-template-columns:1fr;padding:24px}}
+.method{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+.method div{border-left:2px solid var(--line);padding-left:14px}
+.method strong{display:block;font-family:var(--display);font-size:1.5rem;line-height:1.2;font-variant-numeric:tabular-nums}
+.method span{color:var(--ink2);font-size:.95rem}
+.finding{display:flex;flex-direction:column;gap:14px;padding-top:28px;border-top:1px solid var(--line)}
+.finding .tag{font-family:var(--mono);font-size:.75rem;color:var(--accent);letter-spacing:.06em}
+.chart{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px 18px 10px}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.85rem;color:var(--ink2);margin-bottom:8px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.note{font-family:var(--mono);font-size:.78rem;color:var(--muted);line-height:1.5}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--bg);font-size:.8rem;padding:6px 9px;border-radius:6px;white-space:nowrap;transform:translate(-50%,-110%);font-family:var(--body)}
+.axis{fill:var(--muted);font-family:var(--mono);font-size:11px}
+.lbl{fill:var(--ink2);font-family:var(--body);font-size:13px}
+.val{fill:var(--ink);font-family:var(--mono);font-size:12px;font-weight:600}
+.bar{cursor:default}
+.bar:hover,.bar:focus{opacity:.8;outline:none}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:620px;font-size:.93rem}
+th,td{text-align:left;vertical-align:top;padding:14px 16px;border-bottom:1px solid var(--line)}
+tr:last-child td{border-bottom:0}
+th{font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:400}
+td strong{font-family:var(--display);font-size:1.05rem;display:block;margin-bottom:2px}
+td .n{font-family:var(--mono);color:var(--accent);font-weight:600}
+.chip{display:table;margin-bottom:6px;font-family:var(--mono);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;border-radius:999px;padding:2px 9px}
+.chip.wip{background:var(--accent-soft);color:var(--accent)}
+.chip.next{border:1px dashed var(--muted);color:var(--ink2)}
+.eval{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.eval div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px}
+.eval strong{font-family:var(--display);font-size:1.8rem;display:block;font-variant-numeric:tabular-nums;color:var(--accent)}
+.eval span{font-size:.9rem;color:var(--ink2)}
+ul.plain{margin:0;padding-left:1.1em;display:flex;flex-direction:column;gap:8px;max-width:65ch}
+@media (prefers-reduced-motion:no-preference){.bar{transition:opacity .15s}}
+</style>
+</head>
+<body>
+<main class="wrap">
+
+<header>
+  <span class="sign"><b>ERICA</b> Research · Campus wayfinding</span>
+  <h1>Why students get lost at ERICA, and what a map app should do about it</h1>
+  <p class="lede">A survey of 45 Hanyang ERICA students showed that the hardest part of getting to class is not finding the building. It is finding the room once you are inside. And the most popular map app works worst for students who don't read Korean.</p>
+  <dl class="meta">
+    <div><dt>My role</dt><dd>Questionnaire design, research, analysis, presentation</dd></div>
+    <div><dt>Team</dt><dd>Team of 7, Human-Computer System Design course</dd></div>
+    <div><dt>Timeline</dt><dd>Spring 2026</dd></div>
+    <div><dt>Methods</dt><dd>Literature review, survey, χ², binomial test, one-way ANOVA</dd></div>
+  </dl>
+</header>
+
+<section>
+  <p class="eyebrow">The question</p>
+  <h2>What makes it hard to find your way around ERICA, and does knowing Korean change that?</h2>
+  <p>ERICA timetables list classes only as a building number and a room number. The popular map apps are built for streets, not campuses. We wanted to know where exactly students lose their way, and whether international students struggle more than Korean students.</p>
+</section>
+
+<section>
+  <p class="eyebrow">Key finding</p>
+  <div class="hero">
+    <div class="num">64<small>%</small></div>
+    <p>of students had trouble finding a classroom or facility inside a building. Current map apps stop at the front door, which makes indoor wayfinding the clearest gap to close.</p>
+    <div class="stat">29 of 45 respondents · binomial test vs 50%, one-tailed p = 0.036</div>
+  </div>
+</section>
+
+<section>
+  <p class="eyebrow">Method</p>
+  <div class="method">
+    <div><strong>45</strong><span>students completed an online questionnaire</span></div>
+    <div><strong>3 × 15</strong><span>equal groups by Korean familiarity: native, some Korean, no Korean</span></div>
+    <div><strong>3</strong><span>question sections: language and campus familiarity, navigation experience, map tools</span></div>
+    <div><strong>3</strong><span>papers reviewed: a bilingual campus app, 2D vs 3D indoor maps, and you-are-here maps</span></div>
+  </div>
+</section>
+
+<section>
+  <p class="eyebrow">Findings</p>
+
+  <div class="finding">
+    <span class="tag">Finding 1</span>
+    <h3>Finding the room is as hard as or harder than finding the building</h3>
+    <div class="chart" id="c1">
+      <div class="legend"><span><i style="background:var(--neutral)"></i>Trouble finding a building</span><span><i style="background:var(--accent)"></i>Trouble finding a room inside it</span></div>
+    </div>
+    <p>Even native Korean speakers, who rarely got lost between buildings, struggled once inside (33% vs 60%). Building-level difficulty rose as Korean ability fell (33% to 67%), but that trend was not statistically significant with this sample.</p>
+    <p class="note">Rooms: binomial p = 0.036 · Buildings by group: χ²(2, N = 45) = 3.379, p = 0.185</p>
+  </div>
+
+  <div class="finding">
+    <span class="tag">Finding 2</span>
+    <h3>The most-used map app works far less well for students who don't read Korean</h3>
+    <div class="chart" id="c2"></div>
+    <p>58% of students use Naver Map on campus. Among them, native speakers rated it 4.4 out of 5, while students with no Korean rated it 2.8. The official Hanyang campus map scored about the same across groups (3.8 to 4.0), which suggests the gap comes from the app rather than the students.</p>
+    <p class="note">One-way ANOVA with Scheffé post hoc · native vs some Korean p = 0.028 · native vs no Korean p = 0.001 · some vs no Korean p = 0.151</p>
+  </div>
+
+  <div class="finding">
+    <span class="tag">Finding 3</span>
+    <h3>Building numbers are the main source of confusion</h3>
+    <div class="chart" id="c4"></div>
+    <p>The two most common problems were both about building numbers: 56% could not search for a building by its number, and 49% could not match the number on their timetable to a building on the map. Campus signs did not fill the gap: only 15 of 45 students rated them clear.</p>
+    <p class="note">Multi-select, share of 45 respondents · Sign clarity: 15 rated clear or very clear, 21 neutral, 9 unclear</p>
+  </div>
+
+  <div class="finding">
+    <span class="tag">Finding 4</span>
+    <h3>The problem peaks in the first weeks of the semester</h3>
+    <div class="chart" id="c5"></div>
+    <p>Almost every student (89%) said navigation was hardest in the first weeks of the semester, and 71% said it was hard when visiting a building for the first time. Students also started with low familiarity: in their first one to two months, the average rating was below 2 out of 5 in every group.</p>
+    <p class="note">Multi-select, share of 45 respondents · First-months familiarity (1 to 5): native 1.87, some Korean 1.60, no Korean 1.47</p>
+  </div>
+</section>
+
+<section>
+  <p class="eyebrow">From data to design</p>
+  <h2>Each requirement traces back to a finding</h2>
+  <p>The course prototype tested these ideas. I am now building them into a full app, starting with the campus map, then indoor floor maps.</p>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Finding</th><th>Requirement</th><th>How ERICA Nav responds</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="n">56%</span> couldn't search by building number; Naver Map rated 2.8/5 by non-Korean readers</td>
+          <td><strong>Multilingual search</strong>Search by English name, Korean name or building number</td>
+          <td><span class="chip wip">In development</span>Search by number or name with an EN / 한 language toggle</td>
+        </tr>
+        <tr>
+          <td><span class="n">49%</span> couldn't match timetable numbers to the map; <span class="n">89%</span> struggled most in the first weeks</td>
+          <td><strong>Building number and map integration</strong>Connect the timetable to the map</td>
+          <td><span class="chip wip">In development</span>Personal timetable, turn-by-turn routes and the campus shuttle schedule</td>
+        </tr>
+        <tr>
+          <td>Only <span class="n">15 of 45</span> rated campus signs clear</td>
+          <td><strong>Visual building identification</strong>Help students confirm they are at the right place</td>
+          <td><span class="chip wip">In development</span>Building photos shown on the map</td>
+        </tr>
+        <tr>
+          <td><span class="n">64%</span> struggled to find rooms; <span class="n">40%</span> said directions stop at the building</td>
+          <td><strong>Indoor wayfinding</strong>Guide students past the front door</td>
+          <td><span class="chip next">Next</span>Floor maps and room-level directions, the top priority for the next version</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <p class="eyebrow">Validation</p>
+  <h2>The prototype scored above 4 out of 5 in every group</h2>
+  <p>We tested the course prototype with 10 students per language group. Students with no Korean gave the highest scores on all three measures, the group the current apps serve worst.</p>
+  <div class="eval">
+    <div><strong>4.03–4.31</strong><span>Usability, mean by group</span></div>
+    <div><strong>4.16–4.57</strong><span>Usefulness, mean by group</span></div>
+    <div><strong>4.37–4.56</strong><span>Satisfaction, mean by group</span></div>
+  </div>
+</section>
+
+<section>
+  <p class="eyebrow">Reflection</p>
+  <h2>What I would do differently</h2>
+  <ul class="plain">
+    <li>Recruit more participants. Some subgroups were very small, which limits how far the ANOVA result can be trusted.</li>
+    <li>Measure behaviour, not only opinions. A timed task, such as walking from the main gate to a specific room, would show real navigation time instead of self-reported difficulty.</li>
+    <li>Test against a baseline. The prototype was rated on its own, not side by side with Naver Map or the official campus map.</li>
+    <li>Ask about indoor navigation in more detail. It turned out to be the biggest problem, but the survey had only two questions on it. That is also why indoor maps are the next thing I am building: the data says it matters most, and a follow-up study will show which buildings to map first.</li>
+  </ul>
+</section>
+
+</main>
+
+<script>
+(function(){
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const NS = "http://www.w3.org/2000/svg";
+  function el(tag, attrs, parent, text){
+    const e = document.createElementNS(NS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    if (text != null) e.textContent = text;
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function tipFor(box){
+    const t = document.createElement("div"); t.className = "tip"; t.hidden = true; box.appendChild(t);
+    return {
+      show(evt, text, svgEl){
+        const r = box.getBoundingClientRect(), b = svgEl.getBoundingClientRect();
+        t.textContent = text; t.hidden = false;
+        t.style.left = (b.left + b.width/2 - r.left) + "px";
+        t.style.top = (b.top - r.top) + "px";
+      },
+      hide(){ t.hidden = true; }
+    };
+  }
+  function hook(rect, tip, text){
+    rect.setAttribute("tabindex","0");
+    rect.setAttribute("aria-label", text);
+    rect.addEventListener("mouseenter", e => tip.show(e, text, rect));
+    rect.addEventListener("focus", e => tip.show(e, text, rect));
+    rect.addEventListener("mouseleave", () => tip.hide());
+    rect.addEventListener("blur", () => tip.hide());
+  }
+  // rounded-top bar path anchored to baseline
+  function vbar(x, y, w, h){
+    const r = Math.min(4, h, w/2);
+    return `M${x},${y+h}V${y+r}Q${x},${y} ${x+r},${y}H${x+w-r}Q${x+w},${y} ${x+w},${y+r}V${y+h}Z`;
+  }
+  function hbar(x, y, w, h){
+    const r = Math.min(4, w, h/2);
+    return `M${x},${y}H${x+w-r}Q${x+w},${y} ${x+w},${y+r}V${y+h-r}Q${x+w},${y+h} ${x+w-r},${y+h}H${x}Z`;
+  }
+
+  // Vertical grouped/single bars
+  function vchart(id, cfg){
+    const box = document.getElementById(id), tip = tipFor(box);
+    const W = 640, H = 280, m = {t:24, r:8, b:48, l:40};
+    const svg = el("svg", {viewBox:`0 0 ${W} ${H}`, role:"img", "aria-label":cfg.aria}, box);
+    const iw = W-m.l-m.r, ih = H-m.t-m.b;
+    const y = v => m.t + ih - v/cfg.max*ih;
+    cfg.ticks.forEach(t => {
+      el("line", {x1:m.l, x2:W-m.r, y1:y(t), y2:y(t), stroke:css("--grid"), "stroke-width":1}, svg);
+      el("text", {x:m.l-8, y:y(t)+4, "text-anchor":"end", class:"axis"}, svg, cfg.fmtAxis(t));
+    });
+    const gw = iw / cfg.groups.length;
+    const nS = cfg.series.length, bw = Math.min(56, (gw*0.62)/nS), gap = 2;
+    cfg.groups.forEach((g, gi) => {
+      const cx = m.l + gw*gi + gw/2, total = nS*bw + (nS-1)*gap;
+      cfg.series.forEach((s, si) => {
+        const v = s.values[gi], x = cx - total/2 + si*(bw+gap);
+        const p = el("path", {d:vbar(x, y(v), bw, y(0)-y(v)), fill:css(s.color(gi)), class:"bar"}, svg);
+        hook(p, tip, s.tip(gi));
+        el("text", {x:x+bw/2, y:y(v)-6, "text-anchor":"middle", class:"val"}, svg, cfg.fmtVal(v));
+      });
+      g.split("\n").forEach((line, li) => el("text", {x:cx, y:H-m.b+20+li*15, "text-anchor":"middle", class:"lbl"}, svg, line));
+    });
+    el("line", {x1:m.l, x2:W-m.r, y1:y(0), y2:y(0), stroke:css("--muted"), "stroke-width":1}, svg);
+  }
+
+  // Horizontal bars
+  function hchart(id, cfg){
+    const box = document.getElementById(id), tip = tipFor(box);
+    const W = 640, row = 44, m = {t:6, r:56, b:6, l:0}, labelW = 250;
+    const H = m.t + m.b + row*cfg.rows.length;
+    const svg = el("svg", {viewBox:`0 0 ${W} ${H}`, role:"img", "aria-label":cfg.aria}, box);
+    const x0 = labelW, iw = W - x0 - m.r;
+    cfg.rows.forEach((r, i) => {
+      const yy = m.t + i*row, bh = 20, by = yy + (row-bh)/2;
+      const lines = r.label.split("\n");
+      lines.forEach((ln, li) => el("text", {x:0, y:yy + row/2 + 4 + (li-(lines.length-1)/2)*15, class:"lbl"}, svg, ln));
+      el("rect", {x:x0, y:by, width:iw, height:bh, rx:4, fill:css("--grid")}, svg);
+      const w = Math.max(2, r.value/cfg.max*iw);
+      const p = el("path", {d:hbar(x0, by, w, bh), fill:css(r.hi ? "--accent" : "--neutral"), class:"bar"}, svg);
+      hook(p, tip, `${r.label.replace("\n"," ")}: ${r.n} of 45`);
+      el("text", {x:x0+w+8, y:by+bh/2+4, class:"val"}, svg, Math.round(r.value)+"%");
+    });
+  }
+
+  function draw(){
+    document.querySelectorAll(".chart svg, .chart .tip").forEach(n => n.remove());
+    const groups = ["Native\nKorean", "Some\nKorean", "No\nKorean"];
+    const pct = (a,b) => a/b*100;
+
+    vchart("c1", {
+      aria:"Share of students with trouble finding a building versus a room, by Korean ability",
+      groups, max:100, ticks:[0,25,50,75,100], fmtAxis:t=>t+"%", fmtVal:v=>Math.round(v)+"%",
+      series:[
+        {values:[5,8,10].map(v=>pct(v,15)), color:()=> "--neutral", tip:i=>`${groups[i].replace("\n"," ")}: ${[5,8,10][i]} of 15 had trouble finding a building`},
+        {values:[9,10,10].map(v=>pct(v,15)), color:()=> "--accent", tip:i=>`${groups[i].replace("\n"," ")}: ${[9,10,10][i]} of 15 had trouble finding a room`}
+      ]
+    });
+
+    vchart("c2", {
+      aria:"Mean helpfulness of Naver Map by Korean ability, 1 to 5",
+      groups, max:5, ticks:[0,1,2,3,4,5], fmtAxis:t=>t, fmtVal:v=>v.toFixed(1),
+      series:[{values:[4.385,3.556,2.75], color:i=>["--s1","--s2","--s3"][i],
+        tip:i=>`${groups[i].replace("\n"," ")}: mean ${[4.38,3.56,2.75][i]} of 5 (n = ${[13,9,4][i]})`}]
+    });
+
+    hchart("c4", {
+      aria:"Problems students reported with map apps on campus", max:100,
+      rows:[
+        {label:"Can't search by\nbuilding number", n:25, value:pct(25,45), hi:true},
+        {label:"Can't match timetable\nnumber to the map", n:22, value:pct(22,45), hi:true},
+        {label:"Directions stop at the\nbuilding, not the room", n:18, value:pct(18,45)},
+        {label:"Can't find the right\nentrance or floor", n:10, value:pct(10,45)},
+        {label:"Other", n:5, value:pct(5,45)}
+      ]
+    });
+
+    hchart("c5", {
+      aria:"Situations in which students found campus navigation difficult", max:100,
+      rows:[
+        {label:"First weeks of\nthe semester", n:40, value:pct(40,45), hi:true},
+        {label:"Visiting a building\nfor the first time", n:32, value:pct(32,45), hi:true},
+        {label:"Building name\nis unfamiliar", n:14, value:pct(14,45)},
+        {label:"Other", n:4, value:pct(4,45)}
+      ]
+    });
+  }
+  draw();
+  const mq = window.matchMedia("(prefers-color-scheme: dark)");
+  mq.addEventListener && mq.addEventListener("change", draw);
+  new MutationObserver(draw).observe(document.documentElement, {attributes:true, attributeFilter:["data-theme"]});
+})();
+</script>
+</body>
+</html>
