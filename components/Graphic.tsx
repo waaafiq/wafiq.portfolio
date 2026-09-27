@@ -1,83 +1,221 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
-const MOCKS = ["Sign", "Shirt", "App icon"] as const;
-const VARIANTS = [["light", "Light"], ["dark", "Dark"], ["mono", "One colour"]] as const;
+const STICKERS = Array.from({ length: 16 }, (_, i) => `/stickers/${i + 1}.svg`);
+// Three random stickers start loose on the page, in fixed spots placed against the Stickers sheet so they land the same
+// at any width, each at a random tilt: x is a fraction of the sheet's width, y px from the sheet's top.
+const LOOSE = [
+  { x: 0.796, y: -23 }, // hanging off the bottom of the Toolkit card
+  { x: 1.09, y: 158 }, // out past the sheet's right edge
+  { x: -0.014, y: 224 }, // off the sheet's left edge
+];
+const G = 2400, H = 1 / 120; // gravity px/s², fixed physics step
 
-function Mark({ n }: { n: number }) {
-  return <span className="mark">TODO: logo {n}</span>;
-}
+type Body = { x: number; y: number; px: number; py: number; a: number; mode: "box" | "held" | "stuck" | "tween"; gx: number; gy: number; vx: number; vy: number;
+  tw?: { x0: number; y0: number; a0: number; x1: number; y1: number; a1: number; t0: number; dur: number; then: "box" | "stuck"; sway?: number; swings?: number } };
 
-export function LogoSlot({ n }: { n: number }) {
-  const [mock, setMock] = useState(0);
-  const [variant, setVariant] = useState<string>("light");
-  const [grid, setGrid] = useState(false);
-  return (
-    <article className="logo-slot">
-      <button type="button" className="stage" data-variant={variant} onClick={() => setMock((m) => (m + 1) % MOCKS.length)}
->
-        <span className="sr-only">Logo {n} on {MOCKS[mock]}, tap for the next mockup.</span>
-        {mock === 0 && <span className="mock-sign"><Mark n={n} /></span>}
-        {mock === 1 && (
-          <span className="mock-shirt">
-            <svg viewBox="0 0 200 200" aria-hidden="true"><path d="M70 20 L40 30 L10 70 L35 85 L50 70 L50 185 L150 185 L150 70 L165 85 L190 70 L160 30 L130 20 Q100 45 70 20 Z" fill="var(--bg)" stroke="currentColor" strokeWidth="2" /></svg>
-            <Mark n={n} />
-          </span>
-        )}
-        {mock === 2 && <span className="mock-app"><Mark n={n} /></span>}
-        {grid && <span className="construct" />}
-      </button>
-      <div className="stack">
-        <h2 style={{ fontSize: "1.2rem" }}>TODO: logo {n} name</h2>
-        <div className="stack" style={{ gap: "var(--s2)" }}>
-          <span className="label">Mockup</span>
-          <div className="seg">{MOCKS.map((m, i) => <button key={m} type="button" aria-pressed={mock === i} onClick={() => setMock(i)}>{m}</button>)}</div>
-        </div>
-        <div className="stack" style={{ gap: "var(--s2)" }}>
-          <span className="label">Colour</span>
-          <div className="seg">{VARIANTS.map(([v, l]) => <button key={v} type="button" aria-pressed={variant === v} onClick={() => setVariant(v)}>{l}</button>)}</div>
-        </div>
-        <div><button type="button" className="btn small" aria-pressed={grid} onClick={() => setGrid(!grid)}>{grid ? "Hide construction" : "Show construction"}</button></div>
-        {grid && <p className="todo">TODO: one-line concept note for logo {n}</p>}
-      </div>
-    </article>
-  );
-}
+const rand = (lo: number, hi: number) => lo + Math.random() * (hi - lo);
+const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
 
-const START = [[6, 10], [36, 30], [64, 8], [14, 58], [58, 55]];
-
+// A box of flower stickers with gravity. Drag one out of the box and it sticks anywhere on the page;
+// "Release stickers!" opens the floor and lets them drift down onto the page.
 export function StickerBoard() {
-  const board = useRef<HTMLDivElement>(null);
-  const [pos, setPos] = useState(START.map(([x, y]) => ({ x, y })));
-  const [order, setOrder] = useState(START.map((_, i) => i));
-  const [held, setHeld] = useState<number | null>(null);
-  const grab = useRef({ dx: 0, dy: 0 });
+  const boxRef = useRef<HTMLDivElement>(null);
+  const els = useRef<(HTMLDivElement | null)[]>([]);
+  const bodies = useRef<Body[]>([]);
+  const geo = useRef({ L: 0, T: 0, R: 0, B: 0, W: 0, Hh: 0, r: 40, d: 80, ml: 0, mt: 0 });
+  const openRef = useRef(false);
+  const zTop = useRef(1);
+  const [host, setHost] = useState<HTMLElement | null>(null);
+  const [open, setOpen] = useState(false);
+  // As the button's spot reaches the top of the screen, the button detaches and sticks there (same 16px offset, so the
+  // handoff is seamless); scrolling back up docks it under the box again.
+  const dockRef = useRef<HTMLDivElement>(null);
+  const [floating, setFloating] = useState(false);
+  useEffect(() => {
+    let raf = 0;
+    const check = () => { raf = 0; setFloating(dockRef.current!.getBoundingClientRect().top < 16); };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(check); };
+    check();
+    addEventListener("scroll", onScroll, { passive: true });
+    addEventListener("resize", onScroll);
+    return () => { removeEventListener("scroll", onScroll); removeEventListener("resize", onScroll); cancelAnimationFrame(raf); };
+  }, []);
+
+  useEffect(() => setHost(boxRef.current!.closest("main")), []);
+
+  useEffect(() => {
+    if (!host) return;
+    const box = boxRef.current!, layer = host.querySelector<HTMLElement>(".sticker-layer")!;
+    const measure = () => {
+      // Box height fits all 16 stickers packed in rows, plus a little headroom, so there's no empty band on top.
+      const w = box.clientWidth, d = clamp(w / 7.5, 64, 118) + 5, cols = Math.max(1, Math.floor(w / (0.92 * d + 4)));
+      const h = `${Math.round(Math.ceil(STICKERS.length / cols) * 0.88 * d + 0.8 * d)}px`;
+      if (box.style.height !== h) box.style.height = h;
+      // Coordinates are relative to the layer, which spans the viewport width but only the page's height.
+      const m = layer.getBoundingClientRect(), b = box.getBoundingClientRect(), g = geo.current;
+      g.ml = m.left; g.mt = m.top; g.W = Math.min(m.width, document.documentElement.clientWidth - m.left); g.Hh = m.height;
+      g.L = b.left - m.left + 1; g.R = b.right - m.left - 1; g.T = b.top - m.top + 1; g.B = b.bottom - m.top - 6;
+      g.d = clamp((g.R - g.L) / 7.5, 64, 118) + 5; g.r = g.d * 0.46;
+      layer.style.setProperty("--d", `${g.d}px`);
+    };
+    measure();
+    // Spawn: three random stickers stuck in the LOOSE spots, the rest dropped into the box.
+    const g = geo.current, loose = [...STICKERS.keys()].sort(() => Math.random() - 0.5).slice(0, 3), sheet = box.closest(".doc")!.getBoundingClientRect();
+    const slot = slots();
+    bodies.current = STICKERS.map((_, i) => {
+      const k = loose.indexOf(i);
+      // Loose spots can sit past the sheet's edge; keep them fully on screen in narrower windows.
+      const [x, y] = k >= 0 ? [clamp(sheet.left - g.ml + LOOSE[k].x * sheet.width, g.d / 2 + 8, g.W - g.d / 2 - 8), sheet.top - g.mt + LOOSE[k].y] : slot.shift()!;
+      return { x, y, px: x, py: y, a: rand(-0.5, 0.5), mode: k >= 0 ? "stuck" : "box", gx: 0, gy: 0, vx: 0, vy: 0 };
+    });
+
+    let raf = 0, last = performance.now(), acc = 0;
+    const frame = (now: number) => {
+      measure();
+      const { L, T, R, B, W, Hh, r, d } = geo.current, bs = bodies.current;
+      acc = Math.min(acc + (now - last) / 1000, 4 * H); last = now;
+      for (; acc >= H; acc -= H) {
+        for (const b of bs) if (b.mode === "box") {
+          const vx = (b.x - b.px) * 0.996, vy = (b.y - b.py) * 0.996;
+          b.px = b.x; b.py = b.y; b.x += vx; b.y += vy + G * H * H;
+        }
+        for (let it = 0; it < 3; it++) {
+          for (let i = 0; i < bs.length; i++) for (let j = i + 1; j < bs.length; j++) {
+            const p = bs[i], q = bs[j];
+            const pa = p.mode === "box", qa = q.mode === "box";
+            if (!(pa || qa) || !(pa || p.mode === "held") || !(qa || q.mode === "held")) continue;
+            const dx = q.x - p.x, dy = q.y - p.y, dist = Math.hypot(dx, dy) || 0.01, o = 2 * r - dist;
+            if (o <= 0) continue;
+            const ux = dx / dist, uy = dy / dist, sp = pa && qa ? 0.5 : pa ? 1 : 0, sq = pa && qa ? 0.5 : qa ? 1 : 0;
+            p.x -= ux * o * sp; p.y -= uy * o * sp; q.x += ux * o * sq; q.y += uy * o * sq;
+          }
+          for (const b of bs) if (b.mode === "box") {
+            b.x = clamp(b.x, L + r, R - r); b.y = clamp(b.y, T + r, B - r);
+            if (b.y >= B - r) b.px += (b.x - b.px) * 0.15; // floor friction
+          }
+        }
+        for (const b of bs) if (b.mode === "box") b.a += (b.x - b.px) / r; // roll
+      }
+      bs.forEach((b, i) => {
+        if (b.mode === "tween" && b.tw) {
+          const t = b.tw, p = t.dur ? clamp((now - t.t0) / t.dur, 0, 1) : 1;
+          if (t.sway) {
+            // Falling leaf: swings side to side, tilting into each swing and dipping at the bottom of it, then settles softly.
+            const e = (1 - Math.cos(Math.PI * p)) / 2, th = p * t.swings! * 2 * Math.PI, env = Math.sin(Math.PI * p);
+            b.x = t.x0 + (t.x1 - t.x0) * e + Math.sin(th) * t.sway * env;
+            b.y = t.y0 + (t.y1 - t.y0) * e - Math.abs(Math.sin(th)) * 28 * env;
+            b.a = t.a0 + (t.a1 - t.a0) * e + Math.cos(th) * 0.8 * env * Math.sign(t.sway);
+          } else {
+            const e = p < 0.5 ? 4 * p * p * p : 1 - (-2 * p + 2) ** 3 / 2; // ease in-out cubic
+            b.x = t.x0 + (t.x1 - t.x0) * e; b.y = t.y0 + (t.y1 - t.y0) * e; b.a = t.a0 + (t.a1 - t.a0) * e;
+          }
+          if (p >= 1) { b.mode = t.then; b.px = b.x; b.py = b.y; if (t.then === "stuck") land(i); }
+        }
+        if (b.mode === "stuck") { b.x = clamp(b.x, 0.75 * d, W - 0.75 * d); b.y = clamp(b.y, r, Hh - 0.75 * d); } // tilted flowers reach ~0.7d from centre, so keep them off the clipped side and bottom edges
+        const el = els.current[i];
+        if (el) el.style.transform = `translate(${b.x - d / 2}px, ${b.y - d / 2}px) rotate(${b.a}rad)`;
+      });
+      raf = requestAnimationFrame(frame);
+    };
+    raf = requestAnimationFrame(frame);
+    return () => cancelAnimationFrame(raf);
+  }, [host]);
+
+  // Grid of spawn points in the upper part of the box, so nothing starts overlapping.
+  function slots() {
+    const { L, T, R, r } = geo.current, cols = Math.max(1, Math.floor((R - L) / (2 * r + 4)));
+    return STICKERS.map((_, k) => [L + r + 2 + (k % cols) * (2 * r + 4) + rand(-3, 3), T + r + Math.floor(k / cols) * (2 * r + 2)]).reverse();
+  }
+  const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function land(i: number) {
+    const el = els.current[i];
+    if (!el) return;
+    el.classList.remove("land"); void el.offsetWidth; el.classList.add("land");
+  }
+  const at = (e: React.PointerEvent) => ({ x: e.clientX - geo.current.ml, y: e.clientY - geo.current.mt });
 
   function down(i: number, e: React.PointerEvent<HTMLDivElement>) {
+    const b = bodies.current[i];
+    if (b.mode === "tween") return;
+    e.preventDefault(); // no text selection while dragging
     e.currentTarget.setPointerCapture(e.pointerId);
-    const s = e.currentTarget.getBoundingClientRect();
-    grab.current = { dx: e.clientX - s.left, dy: e.clientY - s.top };
-    setHeld(i);
-    setOrder((o) => [...o.filter((k) => k !== i), i]);
+    const p = at(e);
+    Object.assign(b, { mode: "held", gx: p.x - b.x, gy: p.y - b.y, vx: 0, vy: 0 });
+    e.currentTarget.style.zIndex = String(++zTop.current);
+    e.currentTarget.style.setProperty("--tilt", `${(Math.random() < 0.5 ? -1 : 1) * rand(5, 9)}deg`);
+    e.currentTarget.classList.add("held");
   }
-  function move(i: number, e: React.PointerEvent<HTMLDivElement>) {
-    if (held !== i) return;
-    const b = board.current!.getBoundingClientRect(), w = e.currentTarget.offsetWidth;
-    const x = Math.max(0, Math.min(b.width - w, e.clientX - b.left - grab.current.dx));
-    const y = Math.max(0, Math.min(b.height - w, e.clientY - b.top - grab.current.dy));
-    setPos((p) => p.map((q, k) => (k === i ? { x: (x / b.width) * 100, y: (y / b.height) * 100 } : q)));
+  function move(i: number, e: React.PointerEvent) {
+    const b = bodies.current[i];
+    if (b.mode !== "held") return;
+    const p = at(e), x = p.x - b.gx, y = p.y - b.gy;
+    b.vx = x - b.x; b.vy = y - b.y; b.x = x; b.y = y;
   }
+  function up(i: number, e: React.PointerEvent<HTMLDivElement>) {
+    const b = bodies.current[i], { L, T, R, B } = geo.current;
+    if (b.mode !== "held") return;
+    e.currentTarget.classList.remove("held");
+    if (!openRef.current && b.x > L && b.x < R && b.y > T && b.y < B) {
+      b.mode = "box"; b.px = b.x - clamp(b.vx, -12, 12) * 0.5; b.py = b.y - clamp(b.vy, -12, 12) * 0.5; // a little throw
+    } else { b.mode = "stuck"; land(i); }
+  }
+
+  function toggle() {
+    const now = performance.now(), { L, R, T, B, W, Hh, r, d } = geo.current, rm = reduced();
+    const next = !openRef.current;
+    openRef.current = next; setOpen(next);
+    if (next) {
+      // Floor slides away, then the stickers drift down one by one, lowest first, landing anywhere across the page
+      // width, a flower's width in from each side. Each landing spot is the best of 40 random tries (the one farthest from every sticker already
+      // on the page), so they spread out instead of piling up.
+      const placed = bodies.current.filter((b) => b.mode === "stuck").map((b) => [b.x, b.y]);
+      bodies.current.map((b, i) => [b, i] as const).filter(([b]) => b.mode === "box").sort(([a], [b]) => b.y - a.y).forEach(([b], k) => {
+        let x1 = b.x, y1 = b.y, best = -1;
+        for (let n = 0; n < 40; n++) {
+          const x = rand(d, W - d), y = clamp(rand(B + 120, B + innerHeight * 3.2), r, Hh - d); // a full flower clear of the page bottom
+          const gap = Math.min(Infinity, ...placed.map(([px, py]) => Math.hypot(px - x, py - y)));
+          if (gap > best) { best = gap; x1 = x; y1 = y; }
+        }
+        placed.push([x1, y1]);
+        const dur = 2000 + (y1 - b.y) * 2.2; // ~450px/s
+        b.mode = "tween";
+        b.tw = { x0: b.x, y0: b.y, a0: b.a, x1, y1, a1: b.a + rand(-1, 1),
+          t0: now + (rm ? 0 : 450 + k * 160), dur: rm ? 0 : dur, then: "stuck", sway: rand(90, 150) * (Math.random() < 0.5 ? -1 : 1), swings: Math.max(1.5, dur / 1800) };
+      });
+    } else {
+      // Gather every sticker back into the box, then gravity packs them.
+      const s = slots();
+      bodies.current.forEach((b, k) => {
+        const [x1, y1] = s.shift()!;
+        b.mode = "tween";
+        b.tw = { x0: b.x, y0: b.y, a0: b.a, x1: clamp(x1, L + r, R - r), y1: clamp(y1, T + r, B - r), a1: rand(-0.4, 0.4), t0: now + (rm ? 0 : k * 50), dur: rm ? 0 : 900, then: "box" };
+      });
+    }
+  }
+
   return (
-    <div className="board" ref={board} role="group" aria-label="Sticker board. Drag stickers around; positions reset when the page reloads.">
-      {pos.map((p, i) => (
-        <div key={i} className={`sticker ${held === i ? "held" : ""}`}
-          style={{ left: `${p.x}%`, top: `${p.y}%`, zIndex: held === i ? 50 : order.indexOf(i) + 1 }}
-          onPointerDown={(e) => down(i, e)} onPointerMove={(e) => move(i, e)}
-          onPointerUp={() => setHeld(null)} onPointerCancel={() => setHeld(null)}>
-          TODO: sticker {i + 1}
-        </div>
-      ))}
-    </div>
+    <>
+      <div className={`sticker-box ${open ? "open" : ""}`} ref={boxRef} role="group" aria-label="Box of flower stickers. Drag a sticker out of the box to stick it anywhere on the page; positions reset when the page reloads." />
+      {/* The dock keeps the button's place; the button itself moves to a fixed spot while floating */}
+      <div className="release-dock" ref={dockRef}>
+        {!floating && <button type="button" className="btn small glass release" onClick={toggle}>{open ? "Put them back!" : "Release stickers!"}</button>}
+      </div>
+      {floating && createPortal(
+        <button type="button" className="btn small glass release floating" onClick={toggle}>{open ? "Put them back!" : "Release stickers!"}</button>,
+        document.body)}
+      {host && createPortal(
+        <div className="sticker-layer" aria-hidden="true">
+          {STICKERS.map((src, i) => (
+            <div key={src} ref={(el) => { els.current[i] = el; }} className="sticker" style={{ transform: "translate(-999px, -999px)" }}
+              onPointerDown={(e) => down(i, e)} onPointerMove={(e) => move(i, e)} onPointerUp={(e) => up(i, e)} onPointerCancel={(e) => up(i, e)}
+              onAnimationEnd={(e) => e.currentTarget.classList.remove("land")}>
+              <span className="sk" style={{ "--src": `url(${src})` } as React.CSSProperties}><img src={src} alt="" draggable={false} /></span>
+            </div>
+          ))}
+        </div>, host)}
+    </>
   );
 }
 
