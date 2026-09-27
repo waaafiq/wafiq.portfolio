@@ -1,12 +1,42 @@
 "use client";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export type Bar = { value: number; text: string; tip: string; hi?: boolean };
 type Tip = { id: string; text: string; x: number; y: number } | null;
 
+// Flips true once the element is mostly on screen, so animations play when seen rather than on load.
+function useSeen<T extends Element>() {
+  const ref = useRef<T>(null);
+  const [seen, setSeen] = useState(false);
+  useEffect(() => {
+    const io = new IntersectionObserver(([e]) => e.isIntersecting && (setSeen(true), io.disconnect()), { threshold: 0.4 });
+    io.observe(ref.current!);
+    return () => io.disconnect();
+  }, []);
+  return [ref, seen] as const;
+}
+
+// Counts from 0 up to `to` once scrolled into view.
+export function CountUp({ to, ms = 1900 }: { to: number; ms?: number }) {
+  const [ref, seen] = useSeen<HTMLSpanElement>();
+  const [n, setN] = useState(0);
+  useEffect(() => {
+    if (!seen) return;
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return setN(to);
+    const t0 = performance.now();
+    let raf = requestAnimationFrame(function tick(t) {
+      const p = Math.min(1, (t - t0) / ms);
+      setN(Math.round(to * (1 - (1 - p) ** 3)));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [seen, to, ms]);
+  return <span ref={ref}><span aria-hidden="true">{n}</span><span className="sr-only">{to}</span></span>;
+}
+
 // Shared tooltip: hover, keyboard focus and tap all show it; tap again or tap elsewhere hides it.
 function useTip() {
-  const box = useRef<HTMLDivElement>(null);
+  const [box, seen] = useSeen<HTMLElement>();
   const [tip, setTip] = useState<Tip>(null);
   function show(id: string, text: string, el: Element) {
     const r = box.current!.getBoundingClientRect(), b = el.getBoundingClientRect();
@@ -29,7 +59,7 @@ function useTip() {
     };
   }
   const node = tip && <div className="tip" style={{ left: tip.x, top: tip.y }} aria-hidden="true">{tip.text}</div>;
-  return { box, props, node };
+  return { box, props, node, seen };
 }
 
 function vbarPath(x: number, y: number, w: number, h: number) {
@@ -60,13 +90,13 @@ export function VChart({ caption, groups, series, max, ticks, axisSuffix = "", l
   axisSuffix?: string;
   legend?: boolean;
 }) {
-  const { box, props, node } = useTip();
-  const W = 640, H = 280, m = { t: 24, r: 8, b: 48, l: 40 };
+  const { box, props, node, seen } = useTip();
+  const W = 640, H = 290, m = { t: 26, r: 8, b: 58, l: 48 };
   const iw = W - m.l - m.r, ih = H - m.t - m.b;
   const y = (v: number) => m.t + ih - (v / max) * ih;
   const gw = iw / groups.length, nS = series.length, bw = Math.min(56, (gw * 0.62) / nS), gap = 2;
   return (
-    <figure className="chart" ref={box} style={{ margin: 0 }}>
+    <figure className="chart" ref={box} data-seen={seen || undefined} style={{ margin: 0 }}>
       {legend && (
         <div className="legend" aria-hidden="true">
           {series.map((s) => <span key={s.name}><i style={{ background: s.bars[0].hi ? "var(--accent)" : "var(--neutral)" }} />{s.name}</span>)}
@@ -76,7 +106,7 @@ export function VChart({ caption, groups, series, max, ticks, axisSuffix = "", l
         {ticks.map((t) => (
           <g key={t} aria-hidden="true">
             <line className="gridline" x1={m.l} x2={W - m.r} y1={y(t)} y2={y(t)} />
-            <text className="axis" x={m.l - 8} y={y(t) + 4} textAnchor="end">{t}{axisSuffix}</text>
+            <text className="axis" x={m.l - 8} y={y(t) + 5} textAnchor="end">{t}{axisSuffix}</text>
           </g>
         ))}
         {groups.map((g, gi) => {
@@ -86,14 +116,14 @@ export function VChart({ caption, groups, series, max, ticks, axisSuffix = "", l
               {series.map((s, si) => {
                 const bar = s.bars[gi], x = cx - total / 2 + si * (bw + gap);
                 return (
-                  <g key={s.name}>
+                  <g key={s.name} style={{ "--i": gi * nS + si } as React.CSSProperties}>
                     <path d={vbarPath(x, y(bar.value), bw, y(0) - y(bar.value))} {...props(`${gi}-${si}`, bar)} />
-                    <text className="val" x={x + bw / 2} y={y(bar.value) - 6} textAnchor="middle" aria-hidden="true">{bar.text}</text>
+                    <text className="val" x={x + bw / 2} y={y(bar.value) - 7} textAnchor="middle" aria-hidden="true">{bar.text}</text>
                   </g>
                 );
               })}
               {g.split("\n").map((line, li) => (
-                <text key={li} className="lbl" x={cx} y={H - m.b + 20 + li * 15} textAnchor="middle" aria-hidden="true">{line}</text>
+                <text key={li} className="lbl" x={cx} y={H - m.b + 24 + li * 18} textAnchor="middle" aria-hidden="true">{line}</text>
               ))}
             </g>
           );
@@ -112,19 +142,19 @@ export function HChart({ caption, rows, max = 100 }: {
   rows: (Bar & { label: string })[];
   max?: number;
 }) {
-  const { box, props, node } = useTip();
+  const { box, props, node, seen } = useTip();
   const W = 640, row = 44, pad = 6, labelW = 250, right = 56;
   const H = pad * 2 + row * rows.length, iw = W - labelW - right;
   return (
-    <figure className="chart" ref={box} style={{ margin: 0 }}>
+    <figure className="chart h" ref={box} data-seen={seen || undefined} style={{ margin: 0 }}>
       <svg viewBox={`0 0 ${W} ${H}`} role="group" aria-label={caption}>
         {rows.map((r, i) => {
           const yy = pad + i * row, bh = 20, by = yy + (row - bh) / 2;
           const lines = r.label.split("\n"), w = Math.max(2, (r.value / max) * iw);
           return (
-            <g key={r.label}>
+            <g key={r.label} style={{ "--i": i } as React.CSSProperties}>
               {lines.map((ln, li) => (
-                <text key={li} className="lbl" x={0} y={yy + row / 2 + 4 + (li - (lines.length - 1) / 2) * 15} aria-hidden="true">{ln}</text>
+                <text key={li} className="lbl" x={0} y={yy + row / 2 + 5 + (li - (lines.length - 1) / 2) * 18} aria-hidden="true">{ln}</text>
               ))}
               <rect className="track" x={labelW} y={by} width={iw} height={bh} rx={4} aria-hidden="true" />
               <path d={hbarPath(labelW, by, w, bh)} {...props(String(i), r)} />

@@ -1,2 +1,6 @@
-/* Fonts the Bolahh card uses, loaded only on the Bolahh page */
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap');
+/* Fonts the Bolahh card uses, loaded only on the Bolahh page. Self-hosted (SIL Open Font License) so visitors'
+   browsers never contact Google's font servers. Latin subsets only. */
+@font-face { font-family: "Bebas Neue"; font-weight: 400; font-display: swap; src: url(/fonts/bebas-neue-latin.woff2) format("woff2"); }
+@font-face { font-family: "DM Sans"; font-weight: 100 1000; font-display: swap; src: url(/fonts/dm-sans-latin.woff2) format("woff2"); }
+@font-face { font-family: "Space Mono"; font-weight: 400; font-display: swap; src: url(/fonts/space-mono-400-latin.woff2) format("woff2"); }
+@font-face { font-family: "Space Mono"; font-weight: 700; font-display: swap; src: url(/fonts/space-mono-700-latin.woff2) format("woff2"); }

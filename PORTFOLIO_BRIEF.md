@@ -36,7 +36,7 @@ One site, one URL. Pages:
 2. **ERICA Nav** `/work/erica-nav` (the data case study, most important page)
 3. **Bolahh** `/work/bolahh`
 4. **Graphic design** `/work/graphic-design`
-5. **About** `/about` (short bio, resume PDF download, contact)
+5. **About** `/about` (short bio, contact)
 
 Each page must be linkable on its own, because the owner will send direct links in cover letters (the ERICA Nav page for data roles, the graphic design page for design roles).
 
@@ -71,7 +71,7 @@ Inspired by campus wayfinding signage: clear, precise, confident. Lots of white 
 
 ## 6. Home page
 
-1. **Hero:** "Hakeem Wafiq". Line: "Data analyst who designs." Sentence: "I turn research into products people can actually use." Buttons: "View work" (scrolls to projects) and "Resume" (PDF). Keep the hero short, not full-screen.
+1. **Hero:** "Hakeem Wafiq". Line: "Data analyst who designs." Sentence: "I turn research into products people can actually use." Button: "View work" (scrolls to projects). No resume on the site (owner removed it). Keep the hero short, not full-screen.
 2. **Selected work** (large cards, in this order):
    - **ERICA Nav:** "Research and design for a campus wayfinding app. Survey of 45 students, statistical analysis, and a prototype." Tags: Data analysis, UX research, UI design.
    - **Bolahh:** "Interface redesign for a live futsal booking and player progression platform." Tags: UI design, Front end.
@@ -143,7 +143,7 @@ The owner hasn't picked final pieces yet. Build the layout and interactions with
 
 ## 10. About page
 
-Short bio (`TODO:` final text from the owner), resume PDF download, email with copy button, GitHub. Languages: Malay (native), English (fluent), Korean (limited conversational).
+Short bio (`TODO:` final text from the owner), email with copy button, GitHub. Languages: Malay (native), English (fluent), Korean (limited conversational).
 
 ## 11. Done means
 
