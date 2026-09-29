@@ -18,7 +18,10 @@ export const FOLDERS = [
 // Strong ease-in-out: slow start, quick through the middle, soft landing.
 const ease = (t: number) => (t < 0.5 ? 8 * t ** 4 : 1 - (-2 * t + 2) ** 4 / 2);
 
-export default function Cabinet({ children }: { children: React.ReactNode }) {
+// Lucide "sparkle"
+const SPARK = <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z" /></svg>;
+
+export default function Cabinet({ children, footer }: { children: React.ReactNode; footer: React.ReactNode }) {
   const path = usePathname();
   // Pages without their own folder (the legal pages) are filed under Index.
   const found = FOLDERS.findIndex((f) => f.href === path);
@@ -192,6 +195,18 @@ export default function Cabinet({ children }: { children: React.ReactNode }) {
     return () => { cancelAnimationFrame(raf); clearPassing(); sliding.current = false; arriving?.removeAttribute("data-arriving"); };
   }, [activeIndex]);
 
+  // Landing on the Index: the portfolio, name and sparkle tabs rise one after another like an accordion (each drops as the next rises).
+  useLayoutEffect(() => {
+    if (path !== "/" || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const me = [...(tabsRef.current?.querySelectorAll(".tab-me") ?? [])];
+    const steps = me.flatMap((t, i): [number, () => void][] => [
+      [500 + i * 160, () => t.setAttribute("data-passing", "")],
+      [500 + (i + 1) * 160 + (i === me.length - 1 ? 350 : 0), () => t.removeAttribute("data-passing")], // the sparkle stays up for its spin
+    ]);
+    const timers = steps.map(([ms, fn]) => setTimeout(fn, ms));
+    return () => { timers.forEach(clearTimeout); me.forEach((t) => t.removeAttribute("data-passing")); };
+  }, []);
+
   // Slide the chevron over to a right-hand tab, run `then` when it lands, and after a pause slide it home to the
   // open folder. Same ease as a folder change.
   const visitTimer = useRef(0);
@@ -224,6 +239,12 @@ export default function Cabinet({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="cabinet" data-folder={active.c}>
+      {/* Narrow screens: the portfolio / name / sparkle tabs don't fit beside the folder tabs, so they sit above as plain text */}
+      <div className="me-bar">
+        <span className="me-folio">portfolio</span>
+        <span className="me-name">by <b>Hakeem Wafiq</b></span>
+        <button type="button" className="me-spark" aria-label="Throw confetti" onClick={(e) => confetti(e.currentTarget)}>{SPARK}</button>
+      </div>
       <nav className="tabs" aria-label="Main" ref={tabsRef} onPointerMove={onNavMove} onPointerLeave={() => hover(null)}>
         <span className="tab-marker" ref={markerRef} aria-hidden="true">
           <svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" /></svg>
@@ -246,14 +267,16 @@ export default function Cabinet({ children }: { children: React.ReactNode }) {
         </button>
         <button type="button" className="tab tab-me tab-spark" data-folder="spark" aria-label="Throw confetti"
           onClick={(e) => { const el = e.currentTarget; visit(el, () => confetti(el)); }}>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z" /></svg>
+          {SPARK}
         </button>
       </nav>
       <div className="folder-stack">
         <div className="folder">
-          <div className="sheet" id="main">{children}</div>
+          <div className="sheet" id="main">{children}<div className="foot-in">{footer}</div></div>
         </div>
       </div>
+      {/* Wide screens show the footer under the folder; narrow screens show the copy inside it (CSS picks one) */}
+      <div className="foot-out">{footer}</div>
     </div>
   );
 }

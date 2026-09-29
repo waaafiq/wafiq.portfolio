@@ -24,19 +24,22 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${display.variable} ${body.variable} ${mono.variable} ${serif.variable}`}>
       <body>
         <a className="skip" href="#main">Skip to content</a>
-        <Cabinet>{children}</Cabinet>
+        <Cabinet footer={
+          <footer className="site-foot">
+            <span>© 2026 Hakeem Wafiq</span>
+            <a href="mailto:hakeemwafiq04@gmail.com">hakeemwafiq04@gmail.com</a>
+            <a href="https://github.com/waaafiq">GitHub</a>
+            <nav className="legal-links" aria-label="Legal">
+              <Link href="/privacy">Privacy</Link>
+              <Link href="/terms">Terms</Link>
+              <Link href="/cookies">Cookies</Link>
+            </nav>
+          </footer>
+        }>
+          {children}
+        </Cabinet>
         <BackToTop />
         {/* <HandCursor /> */}
-        <footer className="site-foot">
-          <span>© 2026 Hakeem Wafiq</span>
-          <a href="mailto:hakeemwafiq04@gmail.com">hakeemwafiq04@gmail.com</a>
-          <a href="https://github.com/waaafiq">GitHub</a>
-          <nav className="legal-links" aria-label="Legal">
-            <Link href="/privacy">Privacy</Link>
-            <Link href="/terms">Terms</Link>
-            <Link href="/cookies">Cookies</Link>
-          </nav>
-        </footer>
       </body>
     </html>
   );
