@@ -1,4 +1,7 @@
+"use client";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { STARS } from "./stars";
 
 export type FileItem = { href: string; title: string; text: string; kind: string; date: string; folder: string; tags: string[] };
 
@@ -12,21 +15,35 @@ function FolderOpen() {
 }
 
 // Project index: numbered columns, one per project, each read top to bottom.
+// Touch screens can't hover, so the first tap plays the hover state (stars + highlight) and the second tap opens the project.
 export default function FileBrowser({ files }: { files: FileItem[] }) {
+  const [armed, setArmed] = useState<string | null>(null);
+  useEffect(() => {
+    if (!armed) return;
+    const off = (e: PointerEvent) => { if (!(e.target as Element).closest?.(".proj")) setArmed(null); };
+    document.addEventListener("pointerdown", off);
+    return () => document.removeEventListener("pointerdown", off);
+  }, [armed]);
   return (
     <ol className="projects">
       {files.map((f, i) => (
         <li key={f.href}>
-          <Link href={f.href} className="proj" data-folder={f.folder}>
+          <Link href={f.href} className="proj" data-folder={f.folder} data-armed={armed === f.href || undefined}
+            onClick={(e) => { if (armed !== f.href && matchMedia("(hover: none)").matches) { e.preventDefault(); setArmed(f.href); } }}>
             <span className="proj-top">
-              <span className="proj-num">#{String(i + 1).padStart(2, "0")}</span>
+              <span className="proj-num">
+                <span className="proj-stars" aria-hidden="true">
+                  {STARS.map((svg, k) => <span key={k} dangerouslySetInnerHTML={{ __html: svg }} />)}
+                </span>
+                <span className="proj-num-text">#{String(i + 1).padStart(2, "0")}</span>
+              </span>
               <FolderOpen />
             </span>
             <span className="label">{f.kind} · {f.date}</span>
             <strong className="proj-title">{f.title}</strong>
             <span className="proj-desc">{f.text}</span>
             <ul className="tags" aria-label="Tags">{f.tags.map((t) => <li key={t}>{t}</li>)}</ul>
-            <span className="proj-go" aria-hidden="true">Open →</span>
+            <svg className="proj-go" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 17 5-5-5-5" /><path d="m13 17 5-5-5-5" /></svg>
           </Link>
         </li>
       ))}

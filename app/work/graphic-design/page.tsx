@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { Poppins } from "next/font/google";
+import { Outfit } from "next/font/google";
 import { StickerBoard, ShortClip } from "@/components/Graphic";
 import BrandGuide, { BOODAK } from "@/components/boodak/BrandGuide";
 import Catalog from "@/components/Catalog";
 import { Tools } from "@/components/CatalogChips";
 
 // Boodak Studio's brand face, scoped to the logo section
-const poppins = Poppins({ subsets: ["latin"], weight: ["600"], variable: "--f-brand" });
+const outfit = Outfit({ subsets: ["latin"], weight: ["600"], variable: "--f-brand" });
 
 export const metadata: Metadata = {
   title: "Graphic Design",
@@ -29,7 +29,7 @@ export default function GraphicDesign() {
         <StickerBoard />
       </section>
 
-      <section className={`doc ${poppins.variable}`}>
+      <section className={`doc ${outfit.variable}`}>
         <p className="eyebrow">Branding</p>
         <BrandGuide brand={BOODAK} />
       </section>
