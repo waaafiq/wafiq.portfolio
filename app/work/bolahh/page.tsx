@@ -31,12 +31,14 @@ export default function Bolahh() {
               ["Live site", <a key="l" href="https://bolahh.com">bolahh.com</a>],
             ]}
           />
+          <div className="doc-sub">
           <p className="eyebrow">Contribution</p>
           <ul className="plain">
             <li>Designed and built an achievement badge system. Unlock rules live in the database, so admins can change them without a code update.</li>
             <li>Redesigned the player card: a design for each rank tier, a tilt interaction and a flip side showing player stats.</li>
             <li>Redesigned the landing page and standardised element and text spacing across the site.</li>
           </ul>
+          </div>
         </section>
         <section className="doc">
           <p className="eyebrow">Achievement badges</p>
@@ -58,7 +60,9 @@ export default function Bolahh() {
       <section className="doc">
         <p className="eyebrow">Landing page</p>
         <h2>A clearer landing page</h2>
-        <img className="doc-img" style={{ borderRadius: 14 }} src="/bolahh/landing.webp" width={2400} height={1525} decoding="async" alt="The redesigned Bolahh landing page: pill navigation bar, one orange call to action and the gold player card with glowing badges" loading="lazy" />
+        <a className="doc-media" href="/bolahh/landing.webp" target="_blank" rel="noopener" title="Open full size">
+        <img className="doc-img" src="/bolahh/landing.webp" width={2400} height={1525} decoding="async" alt="The redesigned Bolahh landing page: pill navigation bar, one orange call to action and the gold player card with glowing badges" loading="lazy" />
+        </a>
       </section>
     </main>
   );
