@@ -24,20 +24,6 @@ const REQS: Req[] = [
 // Several points read as a bulleted list, a single one as a sentence.
 const points = (x: React.ReactNode | React.ReactNode[]) =>
   Array.isArray(x) ? <ul className="plain">{x.map((n, i) => <li key={i}>{n}</li>)}</ul> : <p>{x}</p>;
-import SectionIndex from "@/components/SectionIndex";
-
-const SECTIONS = [
-  { id: "question", label: "The question" },
-  { id: "key", label: "Key finding" },
-  { id: "method", label: "Method" },
-  { id: "f1", label: "Room vs building" },
-  { id: "f2", label: "The Naver Map gap" },
-  { id: "f3", label: "Building numbers" },
-  { id: "f4", label: "The first weeks" },
-  { id: "design", label: "From data to design" },
-  { id: "validation", label: "Validation" },
-  { id: "reflection", label: "Reflection" },
-];
 
 export const metadata: Metadata = {
   title: "ERICA Nav research",
@@ -250,7 +236,6 @@ export default function EricaNav() {
         <svg viewBox="0 0 28 34" aria-hidden="true"><path d="M2 3a2 2 0 0 1 2-2h14l8 8v22a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2z" fill="var(--doc)" stroke="currentColor" strokeWidth="1.4" /><path d="M18 1v8h8" fill="none" stroke="currentColor" strokeWidth="1.4" /><text x="14" y="25" textAnchor="middle" fontSize="7" fontWeight="700" fill="currentColor" fontFamily="monospace">PDF</text></svg>
         <span>Full course presentation (PDF)<br /><span className="label">Attached to this file</span></span>
       </a>
-      <SectionIndex sections={SECTIONS} />
     </main>
   );
 }
