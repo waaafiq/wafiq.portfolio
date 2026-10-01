@@ -22,7 +22,7 @@ const STICKERS = [
 // Nudged 60 right of the file so the string clears the wordmark. hx/hy: the string hole, as fractions of the tag box.
 const TAG = { x: 2246, y: 807, w: 186, h: 427, hx: 0.508, hy: 0.1616 };
 const AX = TAG.x + TAG.w * TAG.hx, AY = TAG.y + TAG.h * TAG.hy; // string anchor x, and the hole's rest y
-const LINES = [{ t: "chaos,", x: 973, y: 172 }, { t: "captured", x: 725, y: 272 }, { t: "beautifully.", x: 790, y: 376 }];
+const LINES = [{ t: "chaos,", x: 219, y: 179 }, { t: "captured", x: 63, y: 278 }, { t: "beautifully.", x: 100, y: 383 }]; // from brand identitiy bento1.svg
 const STRIPES = [{ name: "Cocoa", hex: "#52443C" }, { name: "Cream", hex: "#F8F4E8" }, { name: "Lime", hex: "#CEDF45" }];
 
 // Tag: gravity, string stiffness, air drag (board units, seconds). Rest length leaves the hole exactly at AY.
@@ -94,11 +94,11 @@ export default function BrandGuide({ brand }: { brand: Brand }) {
           b.a = clamp(b.a, -7, 7);
           const L = LINES[i], x0 = PAD - L.x, x1 = SLOGAN.w - PAD - b.w - L.x, y1 = SLOGAN.h - PAD - b.h - L.y;
           if (b.x < x0 || b.x > x1) { b.x = clamp(b.x, x0, x1); b.vx *= -0.4; }
-          if (b.y < -L.y) { b.y = -L.y; b.vy = Math.abs(b.vy) * 0.3; }
+          if (b.y < PAD - L.y) { b.y = PAD - L.y; b.vy = Math.abs(b.vy) * 0.3; }
           if (b.y > y1) {
             b.y = y1;
             if (b.vy > 400) b.va += (Math.random() - 0.5) * b.vy * 0.06;
-            b.vy = b.vy > 250 ? -b.vy * 0.3 : 0; b.vx *= Math.exp(-8 * DT);
+            b.vy = b.vy > 250 ? -b.vy * 0.4 : 0; b.vx *= Math.exp(-8 * DT);
           }
         });
         // Rest each line on whatever is below it: resolve bottom-up so a stack settles in one pass.
@@ -167,7 +167,7 @@ export default function BrandGuide({ brand }: { brand: Brand }) {
     if (!b.held) return;
     const s = sim.current, p = at(e), now = performance.now(), dt = Math.max(0.008, (now - s.down.t) / 1000), L = LINES[i];
     if (Math.hypot(e.clientX - s.down.x, e.clientY - s.down.y) > 4) s.moved = true;
-    const x = clamp(p.x - b.gx, PAD - L.x, SLOGAN.w - PAD - b.w - L.x), y = clamp(p.y - b.gy, -L.y, SLOGAN.h - PAD - b.h - L.y);
+    const x = clamp(p.x - b.gx, PAD - L.x, SLOGAN.w - PAD - b.w - L.x), y = clamp(p.y - b.gy, PAD - L.y, SLOGAN.h - PAD - b.h - L.y);
     b.vx = b.vx * 0.4 + ((x - b.x) / dt) * 0.6; b.vy = b.vy * 0.4 + ((y - b.y) / dt) * 0.6;
     b.x = x; b.y = y; s.down.t = now;
     kick.current();
@@ -195,7 +195,7 @@ export default function BrandGuide({ brand }: { brand: Brand }) {
       s.lines.forEach((b, i) => {
         const el = lineEls.current[i]!;
         b.w = el.offsetWidth / k; b.h = el.offsetHeight / k;
-        b.vx = (Math.random() - 0.5) * 900; b.vy = -500 - i * 250; b.va = (Math.random() - 0.5) * 60;
+        b.vx = (Math.random() - 0.5) * 900; b.vy = -1000 - i * 200; b.va = (Math.random() - 0.5) * 60;
       });
       sloganEl.current?.setAttribute("title", "Tap to put the words back");
     }
@@ -246,7 +246,7 @@ export default function BrandGuide({ brand }: { brand: Brand }) {
         </div>
 
         <div className="bt bt-photo bt-slogan" style={{ gridArea: "slogan" }} ref={sloganEl}>
-          <img src="/boodak/shooter.jpg" alt="A man holding a film camera up to his eye against a clear sky." loading="lazy" />
+          <img src="/boodak/chase.jpg" alt="Two kids chasing each other across a playground." loading="lazy" />
           {LINES.map((l, i) => (
             <p key={l.t} ref={(el) => { lineEls.current[i] = el; }} className="bd-line"
               style={{ left: `${(l.x / SLOGAN.w) * 100}%`, top: `${(l.y / SLOGAN.h) * 100}%` }}

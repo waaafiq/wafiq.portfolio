@@ -58,7 +58,7 @@ export default function Bolahh() {
       <section className="doc">
         <p className="eyebrow">Landing page</p>
         <h2>A clearer landing page</h2>
-        <img className="doc-img" style={{ borderRadius: 14 }} src="/bolahh/landing.webp" alt="The redesigned Bolahh landing page: pill navigation bar, one orange call to action and the gold player card with glowing badges" loading="lazy" />
+        <img className="doc-img" style={{ borderRadius: 14 }} src="/bolahh/landing.webp" width={2400} height={1525} decoding="async" alt="The redesigned Bolahh landing page: pill navigation bar, one orange call to action and the gold player card with glowing badges" loading="lazy" />
       </section>
     </main>
   );

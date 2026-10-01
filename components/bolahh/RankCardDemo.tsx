@@ -51,8 +51,13 @@ function SpinningCard({ rarity, ...props }: { rarity: keyof typeof RARITY_GLOW }
       SCATTER.forEach((b, k) => { const el = badgeRefs.current[k]; if (el) el.style.transform = `translateY(${bob * b.floatMul}px)`; });
       frame = requestAnimationFrame(animate);
     };
-    frame = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(frame);
+    // Spin only while the card is on screen
+    const io = new IntersectionObserver(([e]) => {
+      cancelAnimationFrame(frame);
+      if (e.isIntersecting) frame = requestAnimationFrame(animate);
+    });
+    if (bobRef.current) io.observe(bobRef.current);
+    return () => { cancelAnimationFrame(frame); io.disconnect(); };
   }, []);
   return (
     <div style={{ position: "relative" }}>

@@ -734,9 +734,9 @@ html { scrollbar-color: var(--muted) transparent; accent-color: var(--accent); c
 .player video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; cursor: var(--click); }
 .player-bar { position: absolute; left: 12px; right: 12px; bottom: 12px; display: flex; align-items: center; gap: 8px; padding: 3px 10px 3px 3px; border-radius: 999px; color: var(--ink);
   transition: opacity .25s var(--ease), transform .25s var(--ease); }
-.player[data-playing] .player-bar { opacity: 0; transform: translateY(6px); }
-.player[data-playing]:hover .player-bar, .player[data-playing]:focus-within .player-bar { opacity: 1; transform: none; }
-@media (hover: none) { .player[data-playing] .player-bar { opacity: 1; transform: none; } }
+.player[data-playing] .player-bar { opacity: 0; transform: translateY(6px); pointer-events: none; }
+.player[data-playing][data-awake] .player-bar { opacity: 1; transform: none; pointer-events: auto; } /* shown while the viewer is active; Graphic.tsx idles it after 2.5s */
+.player[data-playing]:not([data-awake]) video { cursor: none; }
 .player-bar button { flex: none; width: 36px; height: 36px; border: 0; border-radius: 50%; background: none; display: grid; place-items: center; cursor: var(--click); color: inherit; }
 .player-bar button:hover { background: color-mix(in srgb, var(--ink) 8%, transparent); }
 .player-time { flex: none; font-family: var(--font-mono); font-size: .72rem; font-variant-numeric: tabular-nums; color: var(--ink2); }
