@@ -148,7 +148,7 @@ ul.note, .note ul { margin: 0; padding-left: 1.1em; }
 @media (max-width: 560px) { /* stacked: dividers become rules between rows */
   .method { grid-template-columns: 1fr; }
   .method div { padding: 0; }
-  .method strong { white-space: normal; }
+  .method strong { white-space: normal; word-spacing: normal; }
   .method div + div { border-left: 0; border-top: 2px solid var(--line); padding-top: var(--s4); }
 }
 .method strong { display: block; font-family: var(--font-display); font-size: 1.5rem; line-height: 1.2; font-variant-numeric: tabular-nums; text-transform: uppercase; word-spacing: -.25em; }
@@ -410,10 +410,13 @@ body::before { content: ""; position: fixed; inset: -4px; z-index: -1; pointer-e
 /* A sheet of paper: fibre relief and grain, edges a shade darker than the middle, a lit top edge, a contact shadow
    plus a soft lift. */
 .doc { counter-increment: doc; position: relative; border-radius: 6px; padding: var(--s6); gap: var(--s4);
-  background: radial-gradient(ellipse 120% 90% at 50% 40%, transparent 62%, rgba(120, 96, 50, .06)), var(--paper-rough), var(--grain) var(--doc);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .9), 0 0 0 1px rgba(18, 33, 58, .05), 0 1px 2px rgba(18, 33, 58, .14), 0 14px 26px -20px rgba(18, 33, 58, .5); }
-.doc > p.eyebrow:first-of-type { max-width: none; display: flex; justify-content: space-between; gap: var(--s3); padding-bottom: var(--s3); margin-bottom: var(--s1); border-bottom: 1px dashed var(--line); color: var(--ink2); }
-.doc > p.eyebrow:first-of-type::before { content: "Doc " counter(doc, decimal-leading-zero); order: 2; color: var(--muted); }
+  --sheet-bg: radial-gradient(ellipse 120% 90% at 50% 40%, transparent 62%, rgba(120, 96, 50, .06)), var(--paper-rough), var(--grain) var(--doc);
+  --sheet-shadow: inset 0 1px 0 rgba(255, 255, 255, .9), 0 0 0 1px rgba(18, 33, 58, .05), 0 1px 2px rgba(18, 33, 58, .14), 0 14px 26px -20px rgba(18, 33, 58, .5);
+  background: var(--sheet-bg); box-shadow: var(--sheet-shadow); }
+/* Part of a sheet that splits off into its own sheet on phones (see the 560px block) */
+.doc-sub { display: flex; flex-direction: column; gap: var(--s4); }
+.doc > p.eyebrow:first-of-type, .doc-sub > p.eyebrow:first-of-type { max-width: none; display: flex; justify-content: space-between; gap: var(--s3); padding-bottom: var(--s3); margin-bottom: var(--s1); border-bottom: 1px dashed var(--line); color: var(--ink2); }
+.doc > p.eyebrow:first-of-type::before, .doc-sub > p.eyebrow:first-of-type::before { content: "Doc " counter(doc, decimal-leading-zero); order: 2; color: var(--muted); }
 .doc .chart, .doc .tablewrap, .doc .respondents { background: transparent; }
 .doc .keyfig { background: transparent; border: 0; padding: 0; }
 .doc.finding { border-top: 0; } /* same top padding as every other sheet, so DOC labels line up */
@@ -445,8 +448,10 @@ body::before { content: ""; position: fixed; inset: -4px; z-index: -1; pointer-e
 .catalog dd { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2) var(--s3); }
 .catalog dl > div:has(.tools, .langs) { align-items: center; } /* marks have no text baseline to align to */
 .catalog { --pin-x: calc(var(--s5) + 10px); transform-origin: var(--pin-x) 32px; transition: transform .45s var(--ease); }
-.catalog:hover { transform: rotate(var(--tilt, -3deg)); } /* swings anticlockwise on its pin hole; angle set in Catalog.tsx */
-@media (prefers-reduced-motion: reduce) { .catalog:hover { transform: none; } }
+/* swings anticlockwise on its pin hole; angle set in Catalog.tsx. Touch screens tap to toggle instead of a sticky :hover */
+@media (hover: hover) { .catalog:hover { transform: rotate(var(--tilt, -3deg)); } }
+.catalog[data-tilted] { transform: rotate(var(--tilt, -3deg)); }
+@media (prefers-reduced-motion: reduce) { .catalog:hover, .catalog[data-tilted] { transform: none; } }
 .catalog::after { content: ""; position: absolute; left: var(--s5); top: 22px; width: 20px; height: 20px; border-radius: 50%; background: var(--f); box-shadow: inset 0 2px 3px rgba(18, 33, 58, .35); }
 .page-head { display: flex; flex-direction: column; gap: 20px; }
 
@@ -501,7 +506,7 @@ body::before { content: ""; position: fixed; inset: -4px; z-index: -1; pointer-e
 @media (max-width: 900px) {
   .projects { grid-template-columns: 1fr; }
   .projects > li + li { border-left: 0; border-top: 1px dashed var(--line); }
-  .projects > li .proj { margin: var(--s2) calc(-1 * var(--s4)); }
+  .projects > li .proj { margin: 0 calc(-1 * var(--s4)); border-radius: 0; }
   .proj-go { opacity: 1; translate: 0 0; }
 }
 @media (prefers-reduced-motion: reduce) { .proj, .proj-go { transition: none; } }
@@ -518,6 +523,8 @@ body::before { content: ""; position: fixed; inset: -4px; z-index: -1; pointer-e
   .catalog::after { left: var(--s4); }
   .catalog { --pin-x: calc(var(--s4) + 10px); }
   .catalog dl > div { grid-template-columns: 1fr; gap: 2px; }
+  .doc:has(> .doc-sub) { background: none; box-shadow: none; padding: 0; gap: var(--s5); }
+  .doc-sub { background: var(--sheet-bg); box-shadow: var(--sheet-shadow); border-radius: 6px; padding: var(--s5) var(--s4); }
 }
 @media (prefers-reduced-motion: reduce) { .tab, .tab:hover { transform: none; } }
 
@@ -701,7 +708,7 @@ html { scrollbar-color: var(--muted) transparent; accent-color: var(--accent); c
   .doc-row > .finding > .chart { display: flex; flex-direction: column; justify-content: center; }
   /* A catalog card filed in a sheet pokes out past the sheet's left edge */
   .doc-row > .doc > .catalog { margin-left: calc(-1 * var(--s6) - 56px); z-index: 1; }
-  .doc-row > .doc > .catalog + .eyebrow { margin-top: var(--s4); }
+  .doc-row > .doc > .catalog + :is(.eyebrow, .doc-sub) { margin-top: var(--s4); }
 }
 /* Graphic design: three logo slots side by side on wide screens; segmented buttons keep their natural width */
 .stack > .seg { align-self: flex-start; }
@@ -882,7 +889,11 @@ html { scrollbar-color: var(--muted) transparent; accent-color: var(--accent); c
 .bp-list button::after { content: ""; position: absolute; inset: -12px -10px; } /* finger-sized hit area; the number looks the same */
 .bp-list-name { flex: 1; min-width: 0; font-size: 13px; font-weight: 600; }
 .bp-list-pill { border: 1px solid; border-radius: 999px; padding: 3px 10px; font-size: 10px; font-weight: 700; letter-spacing: .3px; text-transform: uppercase; }
-@media (max-width: 420px) { .bp-stage { padding: 24px 6px; } .bp { padding: 16px 10px; } .bp-tiles { gap: 6px; } }
+@media (max-width: 560px) { /* phones: just the badge box, no dark stage; four even columns so the rows line up */
+  .bp-stage { background: none; box-shadow: none; padding: 0; }
+  .bp { width: 100%; padding: 16px 12px; }
+  .bp-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+}
 /* Badge picker motion: highlight fades between tiles, tiles press, list rows slide in and out, pills pop on re-tier */
 .bp-tile { transition: background-color .25s ease, border-color .25s ease, transform .15s ease; }
 .bp-tile:not([data-locked]):active { transform: scale(.92); }
@@ -940,3 +951,15 @@ html { scrollbar-color: var(--muted) transparent; accent-color: var(--accent); c
   box-shadow: var(--glass-shadow), inset 0 1px 0 rgba(255, 255, 255, .12); }
 .release:hover, .to-top:hover, .live-site:hover { background: rgba(18, 24, 38, .8); }
 .live-site .live-tip { --ink: #12213A; } /* its tooltip keeps the shared dark popup style */
+
+/* ===== Phone pass: give pictures and charts the full sheet width, and keep small things readable ===== */
+.doc-media { display: block; border-radius: 14px; overflow: hidden; cursor: zoom-in; }
+.doc-media .doc-img { border-radius: 0; }
+.rank-demo-row .rank-demo-card { min-height: 0; } /* the leaderboard row is one short bar; no tall empty stage under it */
+@media (max-width: 560px) {
+  /* Charts drop their inner frame; the sheet is the frame */
+  .doc .chart { border: 0; padding: 0; border-radius: 0; }
+  /* Pictures and video run to the sheet's edges: ~10% bigger on a phone */
+  .doc :is(.bento, .player, .doc-media) { width: auto; margin-inline: calc(-1 * var(--s4)); border-radius: 0; }
+  .legal-links { margin-left: 0; } /* one left edge for the whole footer */
+}

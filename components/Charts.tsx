@@ -35,9 +35,16 @@ export function CountUp({ to, ms = 1900 }: { to: number; ms?: number }) {
 }
 
 // Shared tooltip: hover, keyboard focus and tap all show it; tap again or tap elsewhere hides it.
+// `narrow` (a phone-width chart) switches to a smaller drawing so the labels aren't shrunk to unreadable sizes.
 function useTip() {
   const [box, seen] = useSeen<HTMLElement>();
   const [tip, setTip] = useState<Tip>(null);
+  const [narrow, setNarrow] = useState(false);
+  useEffect(() => {
+    const ro = new ResizeObserver(([e]) => setNarrow(e.contentRect.width < 480));
+    ro.observe(box.current!);
+    return () => ro.disconnect();
+  }, [box]);
   function show(id: string, text: string, el: Element) {
     const r = box.current!.getBoundingClientRect(), b = el.getBoundingClientRect();
     setTip({ id, text, x: b.left + b.width / 2 - r.left, y: b.top - r.top });
@@ -59,7 +66,7 @@ function useTip() {
     };
   }
   const node = tip && <div className="tip" style={{ left: tip.x, top: tip.y }} aria-hidden="true">{tip.text}</div>;
-  return { box, props, node, seen };
+  return { box, props, node, seen, narrow };
 }
 
 function vbarPath(x: number, y: number, w: number, h: number) {
@@ -90,8 +97,8 @@ export function VChart({ caption, groups, series, max, ticks, axisSuffix = "", l
   axisSuffix?: string;
   legend?: boolean;
 }) {
-  const { box, props, node, seen } = useTip();
-  const W = 640, H = 290, m = { t: 26, r: 8, b: 58, l: 48 };
+  const { box, props, node, seen, narrow } = useTip();
+  const W = narrow ? 400 : 640, H = narrow ? 270 : 290, m = { t: 26, r: 8, b: 58, l: narrow ? 42 : 48 };
   const iw = W - m.l - m.r, ih = H - m.t - m.b;
   const y = (v: number) => m.t + ih - (v / max) * ih;
   const gw = iw / groups.length, nS = series.length, bw = Math.min(56, (gw * 0.62) / nS), gap = 2;
@@ -142,20 +149,23 @@ export function HChart({ caption, rows, max = 100 }: {
   rows: (Bar & { label: string })[];
   max?: number;
 }) {
-  const { box, props, node, seen } = useTip();
-  const W = 640, row = 44, pad = 6, labelW = 250, right = 56;
+  const { box, props, node, seen, narrow } = useTip();
+  // Narrow: each label sits on its own line above a full-width bar instead of in a column beside it.
+  const W = narrow ? 400 : 640, row = narrow ? 52 : 44, pad = 6, labelW = narrow ? 0 : 250, right = 56;
   const H = pad * 2 + row * rows.length, iw = W - labelW - right;
   return (
     <figure className="chart h" ref={box} data-seen={seen || undefined} style={{ margin: 0 }}>
       <svg viewBox={`0 0 ${W} ${H}`} role="group" aria-label={caption}>
         {rows.map((r, i) => {
-          const yy = pad + i * row, bh = 20, by = yy + (row - bh) / 2;
+          const yy = pad + i * row, bh = 20, by = narrow ? yy + 24 : yy + (row - bh) / 2;
           const lines = r.label.split("\n"), w = Math.max(2, (r.value / max) * iw);
           return (
             <g key={r.label} style={{ "--i": i } as React.CSSProperties}>
-              {lines.map((ln, li) => (
-                <text key={li} className="lbl" x={0} y={yy + row / 2 + 5 + (li - (lines.length - 1) / 2) * 18} aria-hidden="true">{ln}</text>
-              ))}
+              {narrow
+                ? <text className="lbl" x={0} y={yy + 16} aria-hidden="true">{lines.join(" ")}</text>
+                : lines.map((ln, li) => (
+                  <text key={li} className="lbl" x={0} y={yy + row / 2 + 5 + (li - (lines.length - 1) / 2) * 18} aria-hidden="true">{ln}</text>
+                ))}
               <rect className="track" x={labelW} y={by} width={iw} height={bh} rx={4} aria-hidden="true" />
               <path d={hbarPath(labelW, by, w, bh)} {...props(String(i), r)} />
               <text className="val" x={labelW + w + 8} y={by + bh / 2 + 4} aria-hidden="true">{r.text}</text>
