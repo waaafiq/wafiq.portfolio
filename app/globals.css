@@ -149,7 +149,7 @@ ul.note, .note ul { margin: 0; padding-left: 1.1em; }
 @media (max-width: 560px) { /* stacked: dividers become rules between rows */
   .method { grid-template-columns: 1fr; }
   .method div { padding: 0; }
-  .method strong { white-space: normal; word-spacing: normal; }
+  .method strong { white-space: normal; }
   .method div + div { border-left: 0; border-top: 2px solid var(--line); padding-top: var(--s4); }
 }
 .method strong { display: block; font-family: var(--font-display); font-size: 1.5rem; line-height: 1.2; font-variant-numeric: tabular-nums; text-transform: uppercase; word-spacing: -.25em; }
@@ -561,31 +561,6 @@ html { scrollbar-color: var(--muted) transparent; accent-color: var(--accent); c
   .resp-dots { gap: 4px; }
 }
 
-/* ===== Floating section index ===== */
-.sidx { position: fixed; left: 50%; bottom: max(16px, env(safe-area-inset-bottom)); z-index: 20; width: min(440px, calc(100vw - 24px)); transform: translate(-50%, 0); display: flex; flex-direction: column; gap: var(--s2); transition: transform .45s var(--ease), opacity .3s var(--ease); }
-.sidx[data-shown="false"] { transform: translate(-50%, calc(100% + 32px)); opacity: 0; pointer-events: none; }
-.sidx-bar { display: flex; align-items: center; gap: 2px; border-radius: 999px; padding: 3px; } /* 3px + 36px + 3px + 1px borders = 44px */
-.sidx button { border: 0; background: none; cursor: var(--click); color: var(--ink); }
-.sidx svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
-.sidx-step { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; }
-.sidx-step:hover:not(:disabled) { background: color-mix(in srgb, var(--ink) 8%, transparent); }
-.sidx-step:disabled { color: var(--muted); opacity: .45; cursor: default; }
-.sidx-now { flex: 1; min-width: 0; height: 36px; display: flex; align-items: center; gap: var(--s3); padding: 0 var(--s3); border-radius: 999px; text-align: left; }
-.sidx-now:hover { background: color-mix(in srgb, var(--ink) 6%, transparent); }
-.sidx-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; font-size: .95rem; }
-.sidx-num { font-family: var(--font-mono); font-size: .72rem; color: var(--ink2); font-variant-numeric: tabular-nums; letter-spacing: .04em; margin-right: var(--s3); }
-.sidx-now .sidx-num { margin-right: 0; }
-.sidx-caret { transition: transform .25s var(--ease); }
-.sidx-now[aria-expanded="true"] .sidx-caret { transform: rotate(180deg); }
-.sidx-list { list-style: none; margin: 0; padding: 6px; border-radius: 18px; max-height: min(60vh, 460px); overflow-y: auto; transform-origin: bottom center; animation: sidx-in .28s var(--ease); }
-@keyframes sidx-in { from { opacity: 0; transform: translateY(8px) scale(.98); } }
-.sidx-list button { width: 100%; display: flex; align-items: center; min-height: 42px; padding: 0 var(--s3); border-radius: 12px; font-size: .95rem; text-align: left; }
-.sidx-list button:hover { background: color-mix(in srgb, var(--ink) 7%, transparent); }
-.sidx-list button[aria-current="true"] { background: var(--sign); color: var(--sign-ink); }
-.sidx-list button[aria-current="true"] .sidx-num { color: inherit; opacity: .75; }
-[id="question"], [id="key"], [id="method"], [id^="f"], [id="design"], [id="validation"], [id="reflection"] { scroll-margin-top: 24px; }
-/* Leave room so the index never covers the last lines of the page */
-.page:has(.sidx) { padding-bottom: 120px; }
 .keyfig .note { font-size: .78rem; }
 .respondents .seg { display: flex; flex-wrap: nowrap; align-self: flex-start; }
 .respondents .seg button { flex: 1; white-space: nowrap; }
@@ -806,8 +781,6 @@ html { scrollbar-color: var(--muted) transparent; accent-color: var(--accent); c
   background: var(--ink); color: var(--bg); font-size: .8rem; font-weight: 700; opacity: 0; transform: translateY(4px); transition: opacity .2s var(--ease), transform .2s var(--ease); }
 .live-site:hover .live-tip, .live-site:focus-visible .live-tip { opacity: 1; transform: none; }
 .to-top:hover { background: color-mix(in srgb, var(--glass-tint), var(--ink) 6%); }
-/* ERICA Nav's section bar sits bottom centre; on narrow screens lift the chevron above it */
-@media (max-width: 920px) { body:has(.sidx[data-shown="true"]) .float-actions { bottom: 84px; } }
 
 /* Rank tier buttons above the stage, tinted by tier family */
 .rank-demo-wrap { display: flex; flex-direction: column; gap: var(--s4); }
@@ -947,7 +920,7 @@ html { scrollbar-color: var(--muted) transparent; accent-color: var(--accent); c
 
 /* Glass buttons (not the page-label pills): one 44px height and a dark smoked tint with light text, so they read over any
    folder colour, white sheet or video. Local --ink/--ink2/--muted flip their icons, text and sliders to light. */
-.release, .to-top, .live-site, .sidx-bar, .player-bar {
+.release, .to-top, .live-site, .player-bar {
   --ink: #FFFFFF; --ink2: rgba(255, 255, 255, .75); --muted: rgba(255, 255, 255, .6);
   color: #FFF; background: rgba(18, 24, 38, .66); border-color: rgba(255, 255, 255, .14);
   box-shadow: var(--glass-shadow), inset 0 1px 0 rgba(255, 255, 255, .12); }
@@ -966,5 +939,7 @@ html { scrollbar-color: var(--muted) transparent; accent-color: var(--accent); c
   /* The brand board ends the sheet: sit it flush on the bottom edge, and clip it to the sheet's rounded corners so
      Safari's subpixel rounding of the scaled tiles can't poke a pixel past the edge */
   .doc:has(.bento) { overflow: clip; padding-bottom: 0; }
+  .method strong { word-spacing: normal; } /* the tightened desktop gap collapses to under 1px at this size */
+  .projects > li:nth-child(n) .proj { margin-inline: calc(-1 * var(--sheet-x)); } /* beats the desktop first/last-child pull-outs */
   .legal-links { margin-left: 0; } /* one left edge for the whole footer */
 }
