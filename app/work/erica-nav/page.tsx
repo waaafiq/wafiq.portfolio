@@ -96,6 +96,7 @@ export default function EricaNav() {
             ["Timeline", "Spring 2026"],
             ["Methods", "Survey, chi-square test, binomial test, ANOVA"],
             ["Tools", <Tools key="t" names={["Google Forms", "Excel", "IBM SPSS"]} />],
+            ["Live site", <a key="l" href="https://erica-nav.vercel.app">erica-nav.vercel.app</a>],
           ]}
         />
       </header>

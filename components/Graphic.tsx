@@ -27,6 +27,7 @@ export function StickerBoard() {
   const geo = useRef({ L: 0, T: 0, R: 0, B: 0, W: 0, Hh: 0, r: 40, d: 80, ml: 0, mt: 0 });
   const openRef = useRef(false);
   const zTop = useRef(1);
+  const wake = useRef(() => {});
   const [host, setHost] = useState<HTMLElement | null>(null);
   const [open, setOpen] = useState(false);
   // As the button's spot reaches the top of the screen, the button detaches and sticks there (same 16px offset, so the
@@ -61,8 +62,9 @@ export function StickerBoard() {
       layer.style.setProperty("--d", `${g.d}px`);
     };
     measure();
-    // Spawn: three random stickers stuck in the LOOSE spots, the rest dropped into the box.
-    const g = geo.current, loose = [...STICKERS.keys()].sort(() => Math.random() - 0.5).slice(0, 3), sheet = box.closest(".doc")!.getBoundingClientRect();
+    // Spawn: three random stickers stuck in the LOOSE spots, the rest dropped into the box. Phones keep all of them in the box.
+    const mobile = matchMedia("(max-width: 560px)").matches;
+    const g = geo.current, loose = mobile ? [] : [...STICKERS.keys()].sort(() => Math.random() - 0.5).slice(0, 3), sheet = box.closest(".doc")!.getBoundingClientRect();
     const slot = slots();
     bodies.current = STICKERS.map((_, i) => {
       const k = loose.indexOf(i);
@@ -117,10 +119,16 @@ export function StickerBoard() {
         const el = els.current[i];
         if (el) el.style.transform = `translate(${b.x - d / 2}px, ${b.y - d / 2}px) rotate(${b.a}rad)`;
       });
-      raf = requestAnimationFrame(frame);
+      // The loop measures layout every frame, so it sleeps while the box is off screen and nothing is moving.
+      raf = visible || bs.some((b) => b.mode === "held" || b.mode === "tween") ? requestAnimationFrame(frame) : 0;
     };
+    let visible = true;
+    wake.current = () => { if (!raf) { last = performance.now(); raf = requestAnimationFrame(frame); } };
+    const io = new IntersectionObserver(([e]) => { visible = e.isIntersecting; if (visible) wake.current(); });
+    io.observe(box);
+    addEventListener("resize", wake.current);
     raf = requestAnimationFrame(frame);
-    return () => cancelAnimationFrame(raf);
+    return () => { cancelAnimationFrame(raf); io.disconnect(); removeEventListener("resize", wake.current); };
   }, [host]);
 
   // Grid of spawn points in the upper part of the box, so nothing starts overlapping.
@@ -146,6 +154,7 @@ export function StickerBoard() {
     e.currentTarget.style.zIndex = String(++zTop.current);
     e.currentTarget.style.setProperty("--tilt", `${(Math.random() < 0.5 ? -1 : 1) * rand(5, 9)}deg`);
     e.currentTarget.classList.add("held");
+    wake.current();
   }
   function move(i: number, e: React.PointerEvent) {
     const b = bodies.current[i];
@@ -165,7 +174,7 @@ export function StickerBoard() {
   function toggle() {
     const now = performance.now(), { L, R, T, B, W, Hh, r, d } = geo.current, rm = reduced();
     const next = !openRef.current;
-    openRef.current = next; setOpen(next);
+    openRef.current = next; setOpen(next); wake.current();
     if (next) {
       // Floor slides away, then the stickers drift down one by one, lowest first, landing anywhere across the page
       // width, a flower's width in from each side. Each landing spot is the best of 40 random tries (the one farthest from every sticker already
@@ -239,11 +248,18 @@ export function ShortClip({ src, poster, title, ratio = "16 / 9", children }: { 
   useEffect(() => { const v = vid.current; if (v && v.readyState >= 1) setDur(v.duration); }, []);
   const toggle = () => { const v = vid.current; if (v) (v.paused ? v.play() : v.pause()); };
   const mute = () => { const v = vid.current; if (v) { v.muted = !v.muted; setMuted(v.muted); } };
+  // Like YouTube: any movement, tap or key shows the controls, and while playing they fade after a moment of stillness.
+  const [awake, setAwake] = useState(true);
+  const idle = useRef(0);
+  const wake = () => { setAwake(true); clearTimeout(idle.current); idle.current = window.setTimeout(() => setAwake(false), 2500); };
+  useEffect(() => () => clearTimeout(idle.current), []);
   return (
     <article className="clip">
-      <div className="player" style={{ aspectRatio: ratio }} data-playing={playing || undefined}>
+      <div className="player" style={{ aspectRatio: ratio }} data-playing={playing || undefined} data-awake={awake || undefined}
+        onPointerMove={wake} onPointerDown={wake} onKeyDown={wake} onFocus={wake}
+        onPointerLeave={(e) => { if (e.pointerType === "mouse") { clearTimeout(idle.current); setAwake(false); } }}>
         <video ref={vid} src={src} poster={poster} muted playsInline loop preload="metadata" onClick={toggle}
-          onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)}
+          onPlay={() => { setPlaying(true); wake(); }} onPause={() => setPlaying(false)}
           onLoadedMetadata={(e) => setDur(e.currentTarget.duration)} onDurationChange={(e) => setDur(e.currentTarget.duration)}
           onTimeUpdate={(e) => setT(e.currentTarget.currentTime)} />
         <div className="player-bar glass">
