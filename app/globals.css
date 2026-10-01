@@ -53,6 +53,7 @@
   --font-tab: var(--f-mono), "Segoe UI", system-ui, sans-serif;
 
   --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px; --s8: 64px; --s9: 96px;
+  --sheet-x: 20px; /* side padding inside sheets and notes on phones; full-bleed media pulls out by the same */
   --radius: 10px;
   --radius-sm: 6px;
   --page: 1040px;
@@ -69,7 +70,7 @@ html.hand { --cursor: url(data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEA
 
 /* Base */
 *, *::before, *::after { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; } /* no grey flash on tap; every control has its own pressed/hover state and :focus-visible ring */
 body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 17px; line-height: 1.6; overflow-x: hidden; }
 h1, h2, h3 { font-family: var(--font-display); font-weight: 700; line-height: 1.15; margin: 0; text-wrap: balance; }
 h1 { font-size: clamp(2.1rem, 6vw, 3.4rem); letter-spacing: -0.02em; }
@@ -506,7 +507,8 @@ body::before { content: ""; position: fixed; inset: -4px; z-index: -1; pointer-e
 @media (max-width: 900px) {
   .projects { grid-template-columns: 1fr; }
   .projects > li + li { border-left: 0; border-top: 1px dashed var(--line); }
-  .projects > li .proj { margin: 0 calc(-1 * var(--s4)); border-radius: 0; }
+  .projects > li .proj { margin: 0 calc(-1 * var(--sheet-x)); border-radius: 0; }
+  .doc > .projects { margin-top: calc(-1 * (var(--s4) + var(--s1))); } /* first row starts on the header's dashed rule, like the rows below start on theirs */
   .proj-go { opacity: 1; translate: 0 0; }
 }
 @media (prefers-reduced-motion: reduce) { .proj, .proj-go { transition: none; } }
@@ -517,14 +519,14 @@ body::before { content: ""; position: fixed; inset: -4px; z-index: -1; pointer-e
   .tab[aria-current="page"] { height: 100px; }
   .tab .full { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   .tab .short { display: inline; }
-  .page { padding: var(--s6) 12px var(--s7); gap: var(--s5); }
-  .doc { padding: var(--s5) var(--s4); }
-  .catalog { padding: 26px var(--s4) var(--s4); }
-  .catalog::after { left: var(--s4); }
-  .catalog { --pin-x: calc(var(--s4) + 10px); }
+  .page { padding: var(--s6) 20px var(--s7); gap: var(--s5); }
+  .doc { padding: var(--s5) var(--sheet-x); }
+  .catalog { padding: 26px var(--sheet-x) var(--sheet-x); }
+  .catalog::after { left: var(--sheet-x); }
+  .catalog { --pin-x: calc(var(--sheet-x) + 10px); }
   .catalog dl > div { grid-template-columns: 1fr; gap: 2px; }
   .doc:has(> .doc-sub) { background: none; box-shadow: none; padding: 0; gap: var(--s5); }
-  .doc-sub { background: var(--sheet-bg); box-shadow: var(--sheet-shadow); border-radius: 6px; padding: var(--s5) var(--s4); }
+  .doc-sub { background: var(--sheet-bg); box-shadow: var(--sheet-shadow); border-radius: 6px; padding: var(--s5) var(--sheet-x); }
 }
 @media (prefers-reduced-motion: reduce) { .tab, .tab:hover { transform: none; } }
 
@@ -683,7 +685,7 @@ html { scrollbar-color: var(--muted) transparent; accent-color: var(--accent); c
 :root { --page: 1280px; }
 .page, .page.read { max-width: var(--page); gap: var(--s6); padding-top: var(--s7); }
 .doc { padding: var(--s5) var(--s6); }
-@media (max-width: 560px) { .doc { padding: var(--s5) var(--s4); } } /* phones: the desktop padding above was overriding this */
+@media (max-width: 560px) { .doc { padding: var(--s5) var(--sheet-x); } } /* phones: the desktop padding above was overriding this */
 .lede { max-width: 60ch; }
 .doc-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); } /* one column that never grows past the page */
 .doc-row { gap: var(--s6); }
@@ -960,6 +962,9 @@ html { scrollbar-color: var(--muted) transparent; accent-color: var(--accent); c
   /* Charts drop their inner frame; the sheet is the frame */
   .doc .chart { border: 0; padding: 0; border-radius: 0; }
   /* Pictures and video run to the sheet's edges: ~10% bigger on a phone */
-  .doc :is(.bento, .player, .doc-media) { width: auto; margin-inline: calc(-1 * var(--s4)); border-radius: 0; }
+  .doc :is(.bento, .player, .doc-media) { width: auto; margin-inline: calc(-1 * var(--sheet-x)); border-radius: 0; }
+  /* The brand board ends the sheet: sit it flush on the bottom edge, and clip it to the sheet's rounded corners so
+     Safari's subpixel rounding of the scaled tiles can't poke a pixel past the edge */
+  .doc:has(.bento) { overflow: clip; padding-bottom: 0; }
   .legal-links { margin-left: 0; } /* one left edge for the whole footer */
 }
