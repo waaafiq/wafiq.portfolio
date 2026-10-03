@@ -215,9 +215,9 @@ ul.plain { margin: 0; padding-left: 1.1em; display: flex; flex-direction: column
 .bd-art svg { display: block; width: 100%; height: auto; overflow: visible; }
 .bd-head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); gap: var(--s5); align-items: start; }
 
-/* Bento, laid out in the Affinity board's own units (2480 x 1774): three 591-unit columns/rows, the right column 1298.
+/* Bento, laid out in the Affinity board's own units (2481 x 1772): two 590.55-unit columns and three equal rows, the right column 1299.9.
    The whole board keeps its aspect at every width, so baked sticker positions hold on phones too. */
-.bento { position: relative; display: grid; grid-template-columns: 591fr 591fr 1298fr; grid-template-rows: repeat(3, 1fr); aspect-ratio: 2480 / 1774;
+.bento { position: relative; display: grid; grid-template-columns: 590.55fr 590.55fr 1299.9fr; grid-template-rows: repeat(3, 1fr); aspect-ratio: 2481 / 1772;
   grid-template-areas: "hero hero word" "hero hero stk" "type strp slogan"; user-select: none; -webkit-user-select: none; }
 .bt { position: relative; margin: 0; padding: 0; border: 0; overflow: hidden; container-type: inline-size; color: var(--bd-ink); min-width: 0; min-height: 0; font: inherit; }
 .bt-photo > img { position: absolute; inset: -3px; width: calc(100% + 6px); height: calc(100% + 6px); max-width: none; object-fit: cover; pointer-events: none; } /* bleed past the tile so the photos' edge pixels never show */
@@ -228,12 +228,12 @@ ul.plain { margin: 0; padding-left: 1.1em; display: flex; flex-direction: column
 .bt-word, .bt-cream, .bt-type, .bt-stripes button { box-shadow: 0 0 0 1px var(--tile); }
 .bt-photo { overflow: clip; overflow-clip-margin: 1px; }
 .bt-photo::after { inset: -1px; }
-.bd-hero-logo { --bd-ink: #F8F4E8; position: absolute; top: 25%; left: 50%; translate: -50% 0; width: 38.4%; }
+.bd-hero-logo { --bd-ink: #F8F4E8; position: absolute; top: 24.55%; left: 50%; translate: -50% 0; width: 39.19%; } /* ink lands on the file's 364.4, 295.3, 452.3 wide */
 .bt-word { display: grid; place-items: center; --tile: #CEDF45; background: var(--tile); }
-.bt-word .bd-art { width: 52.1%; }
+.bt-word .bd-art { width: 52.1%; translate: -.09% 1%; } /* optical nudge onto the file's 1491.7, 178.9 */
 .bt-cream { --tile: #F8F4E8; background: var(--tile); }
 .bt-type { display: flex; flex-direction: column; justify-content: center; align-items: center; --tile: #ABCBFF; background: var(--tile); }
-.bt-type span { font-weight: 600; font-size: 28.2cqw; line-height: 1.24; translate: .07em 0; } /* the period drags the eye left; shift to sit optically centred */ /* cqw on the tile itself would resolve against the page, not the tile */
+.bt-type span { position: absolute; font-weight: 600; font-size: 28.22cqw; line-height: normal; white-space: nowrap; } /* placed from BrandGuide.tsx */ /* the period drags the eye left; shift to sit optically centred */ /* cqw on the tile itself would resolve against the page, not the tile */
 .bd-aa-outfit { font-family: var(--f-brand), sans-serif; }
 .bd-aa-chillax { font-family: "Chillax", sans-serif; }
 .bt-stripes { display: flex; flex-direction: column; }

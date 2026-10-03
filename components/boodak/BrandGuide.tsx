@@ -2,7 +2,7 @@
 import { useEffect, useRef } from "react";
 import * as ART from "./art";
 
-// One brand's guide as a hard-cornered bento, laid out from ~/Desktop/idk/brand identitiy bento.svg. Stickers sit where
+// One brand's guide as a hard-cornered bento, laid out from ~/Desktop/idk/brand identitiy bento_boodak.svg. Stickers sit where
 // the file put them and tilt on hover; the tag hangs off the board's top edge on an elastic string and sways when the
 // cursor brushes it, which knocks the slogan's lines down inside their tile. The palette tile copies hex on click.
 export type Brand = { name: string; concept: string };
@@ -13,17 +13,19 @@ export const BOODAK: Brand = {
 };
 
 // Board units are the Affinity file's px, so every number below is read straight off it.
-const W = 2480, H = 1774;
+const W = 2481, H = 1772;
 const SLOGAN = { w: 1299, h: 591 };
 const STICKERS = [
-  { k: "STICKER_CAM", cx: 1557, cy: 712, w: 540, h: 281, rot: -15.8 },
-  { k: "STICKER_SUN", cx: 1870, cy: 1060, w: 405, h: 426, rot: 19.6 },
+  { k: "STICKER_CAM", cx: 1557, cy: 712, w: 540, h: 281, rot: -16.8 },
+  { k: "STICKER_SUN", cx: 1870, cy: 1059, w: 447.6, h: 470.7, rot: 19.6 }, // the art carries ~10% margin, so it's drawn larger to match the file
 ] as const;
-// Nudged 60 right of the file so the string clears the wordmark. hx/hy: the string hole, as fractions of the tag box.
-const TAG = { x: 2246, y: 807, w: 186, h: 427, hx: 0.508, hy: 0.1616 };
+// hx/hy: the string hole, as fractions of the tag box.
+const TAG = { x: 2216, y: 807, w: 186, h: 427, hx: 0.508, hy: 0.1616 };
 const AX = TAG.x + TAG.w * TAG.hx, AY = TAG.y + TAG.h * TAG.hy; // string anchor x, and the hole's rest y
-const LINES = [{ t: "chaos,", x: 219, y: 179 }, { t: "captured", x: 63, y: 278 }, { t: "beautifully.", x: 100, y: 383 }]; // from brand identitiy bento1.svg
-const STRIPES = [{ name: "Cocoa", hex: "#52443C" }, { name: "Cream", hex: "#F8F4E8" }, { name: "Lime", hex: "#CEDF45" }];
+const LINES = [{ t: "chaos,", x: 220.6, y: 183.6 }, { t: "captured", x: 64.9, y: 283.2 }, { t: "beautifully.", x: 102, y: 387.8 }];
+const STRIPES = [{ name: "Cocoa", hex: "#52443C" }, { name: "Lime", hex: "#CEDF45" }, { name: "Cream", hex: "#F8F4E8" }];
+// The type specimens' font boxes in the 590.6-unit tile, as the file sets them
+const AA = [{ k: "outfit", font: "Outfit Semibold", x: 168.1, y: 73.9 }, { k: "chillax", font: "Chillax Semibold", x: 162.8, y: 299.4 }]; // Chillax's font box sits 6.6 lower in the browser
 
 // Tag: gravity, string stiffness, air drag (board units, seconds). Rest length leaves the hole exactly at AY.
 const TG = 4000, K = 80, C = 2.2, L0 = AY - TG / K;
@@ -235,8 +237,7 @@ export default function BrandGuide({ brand }: { brand: Brand }) {
         <div className="bt bt-cream" style={{ gridArea: "stk" }} />
 
         <div className="bt bt-type" style={{ gridArea: "type" }}>
-          <span className="bd-aa-outfit" title="Outfit Semibold">Aa.</span>
-          <span className="bd-aa-chillax" title="Chillax Semibold">Aa.</span>
+          {AA.map((a) => <span key={a.k} className={`bd-aa-${a.k}`} title={a.font} style={{ left: `${(a.x / 590.6) * 100}%`, top: `${(a.y / 590.6) * 100}%` }}>Aa.</span>)}
         </div>
 
         <div className="bt bt-stripes" style={{ gridArea: "strp" }}>
