@@ -39,7 +39,7 @@ export default function GraphicDesign() {
 
       <section className={`doc ${montserrat.variable}`}>
         <p className="eyebrow">Branding</p>
-        <KastelGuide name="Kastel" concept="Kastel, short for Karnival Sukan Telekom Malaysia, is TM's annual sports carnival. Its mark shows three people forming a trophy: the trophy stands for competition, the people for togetherness, and the signal wave above them for TM." />
+        <KastelGuide name="KASTEL" concept="KASTEL, short for Karnival Sukan Telekom Malaysia, is TM's annual sports carnival. Its mark shows three people forming a trophy: the trophy stands for competition, the people for togetherness, and the signal wave above them for TM." />
       </section>
 
       <section className="doc">

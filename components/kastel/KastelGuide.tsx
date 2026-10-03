@@ -99,7 +99,7 @@ export default function KastelGuide({ name, concept }: { name: string; concept: 
 
       <div className="bento km" onClick={copy}>
         <div className="bt km-logo" style={{ gridArea: "logo" }}>
-          <img className="km-at" style={at(PIECES.mark, TILES.logo)} src="/kastel/mark.svg" alt="Kastel mark: three figures with raised arms forming a trophy under a signal wave" />
+          <img className="km-at" style={at(PIECES.mark, TILES.logo)} src="/kastel/mark.svg" alt="KASTEL mark: three figures with raised arms forming a trophy under a signal wave" />
           <img className="km-at" style={at(PIECES.wordmark, TILES.logo)} src="/kastel/wordmark.svg" alt="KASTEL" />
           {SUB.map((l) => <span key={l.t} className="km-at km-sub" style={{ ...at(l, TILES.logo), letterSpacing: l.ls }}>{l.t}</span>)}
         </div>
@@ -111,7 +111,7 @@ export default function KastelGuide({ name, concept }: { name: string; concept: 
         </div>
 
         <div className="bt km-type" style={{ gridArea: "type" }}>
-          <img className="km-at" style={at(PIECES.aa, TILES.type)} src="/kastel/aa.svg" alt="Aa. in the Kastel display face" title="Display face" />
+          <img className="km-at" style={at(PIECES.aa, TILES.type)} src="/kastel/aa.svg" alt="Aa. in the KASTEL display face" title="Display face" />
           <span className="km-at km-aa" style={at(AA, TILES.type)} title="Montserrat Semibold">Aa.</span>
         </div>
 
