@@ -220,7 +220,7 @@ ul.plain { margin: 0; padding-left: 1.1em; display: flex; flex-direction: column
 .bento { position: relative; display: grid; grid-template-columns: 591fr 591fr 1298fr; grid-template-rows: repeat(3, 1fr); aspect-ratio: 2480 / 1774;
   grid-template-areas: "hero hero word" "hero hero stk" "type strp slogan"; user-select: none; -webkit-user-select: none; }
 .bt { position: relative; margin: 0; padding: 0; border: 0; overflow: hidden; container-type: inline-size; color: var(--bd-ink); min-width: 0; min-height: 0; font: inherit; }
-.bt-photo img { position: absolute; inset: -3px; width: calc(100% + 6px); height: calc(100% + 6px); max-width: none; object-fit: cover; pointer-events: none; } /* bleed past the tile so the photos' edge pixels never show */
+.bt-photo > img { position: absolute; inset: -3px; width: calc(100% + 6px); height: calc(100% + 6px); max-width: none; object-fit: cover; pointer-events: none; } /* bleed past the tile so the photos' edge pixels never show */
 .bt-photo::after { content: ""; position: absolute; inset: 0; background: rgba(48, 42, 73, .3); pointer-events: none; }
 .bt-photo > :not(img) { z-index: 1; }
 /* Every tile paints 1px past its edge (flat ones with a same-colour ring, photos by letting the bled image out),
@@ -943,3 +943,44 @@ html { scrollbar-color: var(--muted) transparent; accent-color: var(--accent); c
   .projects > li:nth-child(n) .proj { margin-inline: calc(-1 * var(--sheet-x)); } /* beats the desktop first/last-child pull-outs */
   .legal-links { margin-left: 0; } /* one left edge for the whole footer */
 }
+
+/* ===== Kastel brand board: Boodak's grid with a wide left column; medals hang on ribbons over the photo ===== */
+.bento.km { grid-template-columns: 1890fr 591fr; grid-template-rows: 708.7fr 590.5fr 472.8fr; aspect-ratio: 2481 / 1772; /* 60, 50, 40 mm */
+  grid-template-areas: "logo strp" "photo type" "photo num"; }
+.km-logo { --tile: #D7FBF4; background: var(--tile); }
+.km-type { --tile: #C14522; background: var(--tile); }
+.km-num { --tile: #1700E7; background: var(--tile); }
+/* No 1px edge rings on this board (Boodak's seam guard): a ring paints over its neighbour and nudges the edge a pixel,
+   which shows here where the photo, banner, swatches and type tile all meet on one line */
+.bento.km .bt-stripes button { box-shadow: none; }
+.km-photo { overflow-clip-margin: 0px; } /* nor the photo's 1px bleed, which pokes past the type tile's corner */
+/* Every piece sits where the board file put it (KastelGuide.tsx); text sizes are the file's, in cqw of their tile */
+.km-at { position: absolute; display: block; margin: 0; }
+.km-sub { font-family: var(--f-km), sans-serif; font-weight: 600; font-size: 2.6275cqw; line-height: 1.208; letter-spacing: .14em; color: #1801E7; text-transform: uppercase; white-space: nowrap; }
+.km-aa { font-family: var(--f-km), sans-serif; font-weight: 600; font-size: 28.2cqw; line-height: 1.218; color: #292929; white-space: nowrap; }
+.km-photo::after { background: rgba(31, 25, 77, .5); } /* the file's indigo wash, so the medals carry the colour */
+
+/* Medal layer: exactly the photo's box. Its top edge is the banner's bottom edge, so clipping there hides the ribbons'
+   upper ends as if they ran on behind the banner. */
+.km-hangs { position: absolute; left: 0; bottom: 0; width: calc(1890 / 2481 * 100%); height: calc(1063.3 / 1772 * 100%); z-index: 2; overflow: clip; pointer-events: none; }
+.km-hangs .km-hang { pointer-events: auto; }
+/* A medal on its ribbon: pinned at the banner's bottom edge, rotated as a pendulum from KastelGuide.tsx */
+.km-hang[data-k="gold"] { z-index: 2; } /* the winner swings in front */
+.km-hang { position: absolute; cursor: grab; touch-action: pan-y; outline-offset: 4px; will-change: rotate; }
+.km-ribbon { position: absolute; top: 0; left: 50%; translate: -50% 0; pointer-events: none;
+  background: linear-gradient(90deg, rgba(0, 0, 0, .28), rgba(0, 0, 0, 0) 22%, rgba(255, 255, 255, .14) 50%, rgba(0, 0, 0, 0) 78%, rgba(0, 0, 0, .28)),
+    linear-gradient(90deg, #1700E7 0 31%, #FE5E00 31% 69%, #1700E7 69%); }
+/* The front strand is in shadow where it folds over the tab, and lifts off the metal with a soft drop */
+.km-fold { z-index: 2; border-radius: 0 0 6% 6% / 0 0 30% 30%; box-shadow: 0 3px 4px rgba(10, 6, 40, .35);
+  background: linear-gradient(rgba(0, 0, 0, .35), rgba(0, 0, 0, .05) 45%, rgba(0, 0, 0, .18)),
+    linear-gradient(90deg, rgba(0, 0, 0, .28), rgba(0, 0, 0, 0) 22%, rgba(255, 255, 255, .14) 50%, rgba(0, 0, 0, 0) 78%, rgba(0, 0, 0, .28)),
+    linear-gradient(90deg, #1700E7 0 31%, #FE5E00 31% 69%, #1700E7 69%); }
+.km-medal { position: absolute; left: 0; right: 0; bottom: 0; z-index: 1; filter: drop-shadow(0 10px 12px rgba(8, 5, 35, .45)); }
+.km-medal img { display: block; width: 100%; height: 100%; pointer-events: none; }
+/* Metal: a fixed bevel light (top-left bright, bottom-right dark) plus a specular band that slides as the medal turns.
+   Both are masked to the medal's own outline, so body and stroke shine together. */
+.km-medal::before, .km-medal::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+  -webkit-mask: var(--src) center / 100% 100% no-repeat; mask: var(--src) center / 100% 100% no-repeat; }
+.km-medal::before { mix-blend-mode: soft-light; background: linear-gradient(140deg, rgba(255, 255, 255, .55), rgba(255, 255, 255, 0) 35%, rgba(0, 0, 0, 0) 60%, rgba(0, 0, 0, .4)); }
+.km-medal::after { mix-blend-mode: overlay; background: linear-gradient(110deg, rgba(255, 255, 255, 0) 41%, rgba(255, 255, 255, .45) 48%, rgba(255, 255, 255, .6) 50%, rgba(255, 255, 255, .45) 52%, rgba(255, 255, 255, 0) 59%) var(--sh, 30%) 0 / 300% 100% no-repeat; }
+@media (prefers-reduced-motion: reduce) { .km-hang { cursor: default; } }
