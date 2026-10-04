@@ -223,11 +223,9 @@ ul.plain { margin: 0; padding-left: 1.1em; display: flex; flex-direction: column
 .bt-photo > img { position: absolute; inset: -3px; width: calc(100% + 6px); height: calc(100% + 6px); max-width: none; object-fit: cover; pointer-events: none; } /* bleed past the tile so the photos' edge pixels never show */
 .bt-photo::after { content: ""; position: absolute; inset: 0; background: rgba(48, 42, 73, .3); pointer-events: none; }
 .bt-photo > :not(img) { z-index: 1; }
-/* Every tile paints 1px past its edge (flat ones with a same-colour ring, photos by letting the bled image out),
-   so fractional grid tracks never open a hairline seam between neighbours */
-.bt-word, .bt-cream, .bt-type, .bt-stripes button { box-shadow: 0 0 0 1px var(--tile); }
-.bt-photo { overflow: clip; overflow-clip-margin: 1px; }
-.bt-photo::after { inset: -1px; }
+/* Every tile paints exactly its grid cell, so all edges meeting on one grid line round to the same pixel. (Painting
+   1px past the edge to hide seams nudged whichever tile drew last a pixel over its neighbour.) */
+.bt-photo { overflow: clip; }
 .bd-hero-logo { --bd-ink: #F8F4E8; position: absolute; top: 24.55%; left: 50%; translate: -50% 0; width: 39.19%; } /* ink lands on the file's 364.4, 295.3, 452.3 wide */
 .bt-word { display: grid; place-items: center; --tile: #CEDF45; background: var(--tile); }
 .bt-word .bd-art { width: 52.1%; translate: -.09% 1%; } /* optical nudge onto the file's 1491.7, 178.9 */
@@ -950,10 +948,6 @@ html { scrollbar-color: var(--muted) transparent; accent-color: var(--accent); c
 .km-logo { --tile: #D7FBF4; background: var(--tile); }
 .km-type { --tile: #C14522; background: var(--tile); }
 .km-num { --tile: #1700E7; background: var(--tile); }
-/* No 1px edge rings on this board (Boodak's seam guard): a ring paints over its neighbour and nudges the edge a pixel,
-   which shows here where the photo, banner, swatches and type tile all meet on one line */
-.bento.km .bt-stripes button { box-shadow: none; }
-.km-photo { overflow-clip-margin: 0px; } /* nor the photo's 1px bleed, which pokes past the type tile's corner */
 /* Every piece sits where the board file put it (KastelGuide.tsx); text sizes are the file's, in cqw of their tile */
 .km-at { position: absolute; display: block; margin: 0; }
 .km-sub { font-family: var(--f-km), sans-serif; font-weight: 600; font-size: 2.6275cqw; line-height: 1.208; letter-spacing: .14em; color: #1801E7; text-transform: uppercase; white-space: nowrap; }
