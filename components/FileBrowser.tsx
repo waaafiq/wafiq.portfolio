@@ -16,20 +16,8 @@ function FolderOpen() {
 
 // Project index: numbered columns, one per project, each read top to bottom.
 // Touch screens can't hover, so the first tap plays the hover state (stars + highlight) and the second tap opens the project.
-// On the first visit of a session, each column plays that hover state for 0.8s in turn, #01 to the last.
 export default function FileBrowser({ files }: { files: FileItem[] }) {
   const [armed, setArmed] = useState<string | null>(null);
-  const [lit, setLit] = useState(-1);
-  useEffect(() => {
-    try { if (sessionStorage.getItem("index-intro")) return; } catch {}
-    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const n = files.length;
-    const timers = Array.from({ length: n + 1 }, (_, i) => setTimeout(() => {
-      if (i === 0) try { sessionStorage.setItem("index-intro", "1"); } catch {}
-      setLit(i < n ? i : -1);
-    }, i * 800));
-    return () => timers.forEach(clearTimeout);
-  }, [files.length]);
   useEffect(() => {
     if (!armed) return;
     const off = (e: PointerEvent) => { if (!(e.target as Element).closest?.(".proj")) setArmed(null); };
@@ -40,7 +28,7 @@ export default function FileBrowser({ files }: { files: FileItem[] }) {
     <ol className="projects">
       {files.map((f, i) => (
         <li key={f.href}>
-          <Link href={f.href} className="proj" data-folder={f.folder} data-armed={armed === f.href || lit === i || undefined}
+          <Link href={f.href} className="proj" data-folder={f.folder} data-armed={armed === f.href || undefined}
             onClick={(e) => { if (armed !== f.href && matchMedia("(hover: none)").matches) { e.preventDefault(); setArmed(f.href); } }}>
             <span className="proj-top">
               <span className="proj-num">
