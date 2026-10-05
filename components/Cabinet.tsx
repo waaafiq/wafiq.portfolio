@@ -23,7 +23,7 @@ const SPARK = <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11.017 2.814
 
 export default function Cabinet({ children, footer }: { children: React.ReactNode; footer: React.ReactNode }) {
   const path = usePathname();
-  // Pages without their own folder (the legal pages) are filed under Index.
+  // Paths without their own folder (404s) are filed under Index.
   const found = FOLDERS.findIndex((f) => f.href === path);
   const activeIndex = found < 0 ? FOLDERS.length - 1 : found;
   const active = FOLDERS[activeIndex];
