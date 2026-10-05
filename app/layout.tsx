@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Zalando_Sans_Expanded, Plus_Jakarta_Sans, Figtree, Playfair_Display } from "next/font/google";
-import Link from "next/link";
 import Cabinet from "@/components/Cabinet";
 import BackToTop from "@/components/BackToTop";
 // import HandCursor from "@/components/HandCursor";
@@ -26,14 +25,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <a className="skip" href="#main">Skip to content</a>
         <Cabinet footer={
           <footer className="site-foot">
-            <span>© 2026 Hakeem Wafiq</span>
             <a href="mailto:hakeemwafiq04@gmail.com">hakeemwafiq04@gmail.com</a>
             <a href="https://github.com/waaafiq">GitHub</a>
-            <nav className="legal-links" aria-label="Legal">
-              <Link href="/privacy">Privacy</Link>
-              <Link href="/terms">Terms</Link>
-              <Link href="/cookies">Cookies</Link>
-            </nav>
           </footer>
         }>
           {children}

@@ -896,11 +896,6 @@ html { scrollbar-color: var(--muted) transparent; accent-color: var(--accent); c
 
 /* Index previews: the Bolahh landing page and a scatter of stickers */
 
-/* Footer legal links and the legal pages */
-.legal-links { display: flex; flex-wrap: wrap; gap: var(--s3) var(--s4); margin-left: auto; }
-.legal h2 { font-size: 1.15rem; }
-.legal .doc > h2 + p, .legal .doc > h2 + ul { margin-top: calc(-1 * var(--s2)); }
-.legal ul.plain { gap: var(--s1); }
 .lede strong { color: var(--ink); }
 
 /* Every hover popup shares one look: charts, the live-site button, tool marks and language stamps */
@@ -939,7 +934,6 @@ html { scrollbar-color: var(--muted) transparent; accent-color: var(--accent); c
   .doc:has(.bento) { overflow: clip; padding-bottom: 0; }
   .method strong { word-spacing: normal; } /* the tightened desktop gap collapses to under 1px at this size */
   .projects > li:nth-child(n) .proj { margin-inline: calc(-1 * var(--sheet-x)); } /* beats the desktop first/last-child pull-outs */
-  .legal-links { margin-left: 0; } /* one left edge for the whole footer */
 }
 
 /* ===== Kastel brand board: Boodak's grid with a wide left column; medals hang on ribbons over the photo ===== */
