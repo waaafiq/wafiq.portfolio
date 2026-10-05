@@ -882,6 +882,8 @@ html { scrollbar-color: var(--muted) transparent; accent-color: var(--accent); c
 /* Stacked tabs (hover screens 701px+), like real folder tabs: full-length tabs overlapping in DOM order, overlap
    animated by GSAP in Cabinet.tsx. The bottom padding keeps content centred above the strip behind the file. */
 @media (min-width: 701px) and (hover: hover) {
+  /* The server sends the tabs flat; hide them until Cabinet.tsx has stacked them, so the flat row never flashes first */
+  @media (scripting: enabled) { .tabs:not([data-stack]) { opacity: 0; } .tabs { transition: opacity .2s; } }
   .tabs[data-stack] { gap: 0; max-width: none; padding-right: 28px; } /* full width, so the name and sparkle tabs sit near the folder's right edge */
   .tabs[data-stack] .tab.tab-spark { padding: 0 26px var(--ext); justify-content: center; }
   .tabs[data-stack] .tab { flex: none; min-width: 0; padding: 0 34px var(--ext) 32px; justify-content: flex-start; gap: 10px; z-index: auto; }
