@@ -33,6 +33,11 @@ const statsFor = (rank: (typeof RANKS)[number]) => {
 // Same motion as the Bolahh landing hero: a constant 14deg/s Y-axis spin (card and crown star in lockstep),
 // on a -4deg tilted wrapper that bobs 12px. Driven through refs, not state, so it never re-renders.
 const SPIN_DEG_PER_SEC = 14;
+// A flat card is a hairline edge-on, so a constant spin reads as the card vanishing for a moment at 90deg and 270deg.
+// Warping the angle (theta - EDGE_RUSH * sin 2theta) keeps the average speed but crosses edge-on 1.8x faster and
+// lingers on the front and back faces. EDGE_RUSH must stay under 0.5 or the card would briefly spin backwards.
+const EDGE_RUSH = 0.4;
+const spinAngle = (deg: number) => deg - (EDGE_RUSH * 180 / Math.PI) * Math.sin((2 * deg * Math.PI) / 180);
 function SpinningCard({ rarity, ...props }: { rarity: keyof typeof RARITY_GLOW } & Record<string, unknown>) {
   const flipRef = useRef<HTMLElement>(null);
   const starRef = useRef<HTMLElement>(null);
@@ -43,7 +48,7 @@ function SpinningCard({ rarity, ...props }: { rarity: keyof typeof RARITY_GLOW }
     let frame = 0, start: number | null = null;
     const animate = (ts: number) => {
       start ??= ts;
-      const t = (ts - start) / 1000, deg = t * SPIN_DEG_PER_SEC;
+      const t = (ts - start) / 1000, deg = spinAngle(t * SPIN_DEG_PER_SEC);
       if (flipRef.current) flipRef.current.style.transform = `rotateY(${deg}deg)`;
       if (starRef.current) starRef.current.style.transform = `rotateY(${deg}deg)`;
       const bob = Math.sin(t * 0.8) * 12;
