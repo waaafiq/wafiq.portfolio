@@ -1,6 +1,20 @@
 import { Langs } from "@/components/CatalogChips";
 import Catalog from "@/components/Catalog";
+import Cutouts from "@/components/Cutouts";
 import FileBrowser, { type FileItem } from "@/components/FileBrowser";
+import { Silkscreen, VT323, JetBrains_Mono, Abril_Fatface, Bungee_Shade, Monoton, Rubik_Mono_One } from "next/font/google";
+import "@/components/bolahh/bolahh-fonts.css"; // Bebas Neue, DM Sans, Space Mono for the cut-out letters
+
+// Extra fonts for the cut-out letters only, so they load on this page alone
+const pixel = Silkscreen({ subsets: ["latin"], weight: "700", variable: "--co-pixel" });
+const term = VT323({ subsets: ["latin"], weight: "400", variable: "--co-term" });
+const code = JetBrains_Mono({ subsets: ["latin"], weight: "800", variable: "--co-code" });
+const fat = Abril_Fatface({ subsets: ["latin"], weight: "400", variable: "--co-fat" });
+const shade = Bungee_Shade({ subsets: ["latin"], weight: "400", variable: "--co-shade" });
+const neon = Monoton({ subsets: ["latin"], weight: "400", variable: "--co-neon" });
+const block = Rubik_Mono_One({ subsets: ["latin"], weight: "400", variable: "--co-block" });
+const coFonts = [pixel, term, code, fat, shade, neon, block].map(f => f.variable).join(" ");
+
 
 const files: FileItem[] = [
   {
@@ -37,7 +51,7 @@ export default function Home() {
     <main className="page">
       <header className="page-head">
         <span className="pill glass">Introduction</span>
-        <h1>Hello!<br /><span lang="ms">Apa Khabar?</span></h1>
+        <h1>Hello!<br /><span lang="ms" className={`cutouts ${coFonts}`} aria-label="Apa Khabar?"><Cutouts /></span></h1>
         <p className="lede">I&apos;m Wafiq, a Media Technology student from Malaysia who loves data analytics and UI/UX design.</p>
         <Catalog
           head={["", "About me"]}

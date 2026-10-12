@@ -152,7 +152,7 @@ ul.note, .note ul { margin: 0; padding-left: 1.1em; }
   .method strong { white-space: normal; }
   .method div + div { border-left: 0; border-top: 2px solid var(--line); padding-top: var(--s4); }
 }
-.method strong { display: block; font-family: var(--font-display); font-size: 1.5rem; line-height: 1.2; font-variant-numeric: tabular-nums; text-transform: uppercase; word-spacing: -.25em; }
+.method strong { display: block; font-family: var(--font-display); font-size: 1.5rem; line-height: 1.2; font-variant-numeric: tabular-nums; text-transform: uppercase; word-spacing: -.4em; }
 .method :is(span, ul) { color: var(--ink2); font-size: .95rem; }
 .method ul { margin: 0; padding-left: 1.1em; }
 .finding { display: flex; flex-direction: column; gap: 14px; padding-top: 28px; border-top: 1px solid var(--line); }
@@ -161,7 +161,7 @@ ul.note, .note ul { margin: 0; padding-left: 1.1em; }
 table { border-collapse: collapse; width: 100%; font-size: .93rem; }
 .tablewrap table.wide { min-width: 620px; }
 th, td { text-align: left; vertical-align: top; padding: 14px 16px; border-bottom: 1px solid var(--line); }
-tr:last-child td { border-bottom: 0; }
+tr:last-child :is(td, th) { border-bottom: 0; }
 th { font-family: var(--font-mono); font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 400; }
 td strong { font-family: var(--font-display); font-size: 1.05rem; display: block; margin-bottom: 2px; }
 .n { font-family: var(--font-mono); color: var(--accent); font-weight: 600; font-variant-numeric: tabular-nums; }
@@ -169,6 +169,7 @@ td.n { font-weight: 600; }
 .chip { display: table; margin-bottom: 6px; font-family: var(--font-mono); font-size: .7rem; letter-spacing: .06em; text-transform: uppercase; border-radius: 999px; padding: 2px 9px; }
 .chip.wip { background: var(--accent-soft); color: var(--accent); }
 .chip.next { border: 1px dashed var(--muted); color: var(--ink2); }
+.chip.live { background: #DDF2E5; color: #1D6B40; }
 ul.plain { margin: 0; padding-left: 1.1em; display: flex; flex-direction: column; gap: var(--s2); max-width: 65ch; }
 
 /* Charts */
@@ -259,6 +260,13 @@ ul.plain { margin: 0; padding-left: 1.1em; display: flex; flex-direction: column
   background: radial-gradient(circle at var(--mx, 30%) var(--my, 25%), rgba(255, 255, 255, .5), rgba(255, 255, 255, .12) 30%, rgba(255, 255, 255, 0) 55%);
   -webkit-mask: var(--src) center / 100% 100% no-repeat; mask: var(--src) center / 100% 100% no-repeat; }
 .bd-stk:hover .bd-art::after { opacity: 1; }
+/* The camera and sun stickers also wear the flower stickers' gloss (.sticker .sk::after): a light sweep plus a faint bottom shade, gliding on hover */
+.bd-stk:not(.bd-tag) .bd-art::before { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: linear-gradient(125deg, rgba(255, 255, 255, .38) 0%, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, 0) 48%, rgba(255, 255, 255, .16) 56%, rgba(255, 255, 255, 0) 66%), linear-gradient(to bottom, transparent 55%, rgba(18, 33, 58, .1));
+  background-size: 200% 200%, 100% 100%; background-position: 0 0, 0 0; transition: background-position .6s var(--ease);
+  -webkit-mask: var(--src) center / 100% 100% no-repeat; mask: var(--src) center / 100% 100% no-repeat; }
+.bd-stk:not(.bd-tag):hover .bd-art::before { background-position: 70% 70%, 0 0; }
+.bd-stk .bd-art::after { z-index: 2; }
 .bd-loop { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
 @media (max-width: 700px) {
   .bd-head { grid-template-columns: 1fr; }
@@ -387,6 +395,15 @@ body::before { content: ""; position: fixed; inset: -4px; z-index: -1; pointer-e
 /* Two more files stacked under the open one: full copies of the file shape, shifted down and in, so every corner
    stays round. They live on a wrapper (not the file itself) so they paint behind the file instead of over it. */
 .folder-stack { position: relative; }
+/* Folder backdrop: thin topographic lines, a different random map per tab (public/contours/<tab>.svg: a broad height field
+   traced at 24 levels on a torus so lines run unbroken across the tile edges), repeated at its native 1400×2800px so line
+   weight never scales and the tiling has no seams. Sits under the content, clipped to the file's rounded shape. */
+[data-folder="index"]   { --contour: url(/contours/index.svg); }
+[data-folder="erica"]   { --contour: url(/contours/erica.svg); }
+[data-folder="bolahh"]  { --contour: url(/contours/bolahh.svg); }
+[data-folder="graphic"] { --contour: url(/contours/graphic.svg); }
+.folder::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; clip-path: inset(0 round var(--file-radius));
+  background: #12213A; opacity: .08; -webkit-mask: var(--contour) 0 0 / 1400px 2800px repeat; mask: var(--contour) 0 0 / 1400px 2800px repeat; }
 .folder-stack::before, .folder-stack::after { content: ""; position: absolute; inset: 6px 8px -6px 8px; border-radius: var(--file-radius); background: var(--paper-rough) var(--f); filter: brightness(.9); z-index: -1; pointer-events: none; }
 .folder-stack::after { inset: 12px 16px -12px 16px; filter: brightness(.8); z-index: -2; }
 .sheet { min-height: 60vh; }
@@ -429,9 +446,23 @@ body::before { content: ""; position: fixed; inset: -4px; z-index: -1; pointer-e
 .tools .tool-text { font-family: var(--font-mono); font-weight: 600; font-size: .85rem; letter-spacing: .04em; color: var(--ink); }
 .tools li::after, .langs li::after { content: attr(data-name); position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translate(-50%, 4px); pointer-events: none; opacity: 0; transition: opacity .15s, transform .15s; z-index: 2; }
 .tools .tool-text::after { content: none; }
-.langs { list-style: none; margin: 0; padding: 0; display: flex; gap: 10px; }
-.langs li { position: relative; display: grid; place-items: center; min-width: 36px; height: 22px; padding: 0 9px; border-radius: 999px; border: 1.5px solid #C8321F; background: #C8321F; color: var(--card-stock); outline-offset: 3px; cursor: default;
-  font-family: var(--font-mono); font-weight: 700; font-size: .72rem; letter-spacing: .06em; -webkit-text-stroke: .4px currentColor; } /* mono tops out at 700; the stroke thickens it a touch */
+/* Round yellow dot stickers (the office label kind) for the catalog marks: language codes, tool icons and counts like the
+   "5" in "5 people". Matte paper with a rough texture, slightly scattered and tilted, spilling a little over the row's
+   ruled lines but never touching each other. */
+.langs li, .tools li[data-name], .dot { display: inline-grid; place-items: center; width: 40px; height: 40px; border-radius: 50%;
+  background: var(--paper-rough), var(--card-grain) #FFD23F; box-shadow: 0 1px 1.5px rgba(18, 33, 58, .25); color: #5A3A00; }
+.langs li:nth-child(3n+1), .tools li[data-name]:nth-child(3n+1) { rotate: -9deg; translate: 0 -4px; }
+.langs li:nth-child(3n+2), .tools li[data-name]:nth-child(3n+2) { rotate: 7deg; translate: 0 5px; }
+.langs li:nth-child(3n), .tools li[data-name]:nth-child(3n) { rotate: -4deg; translate: 0 -2px; }
+.langs { list-style: none; margin: -10px 0; padding: 0; display: flex; align-items: center; gap: 6px; }
+.langs li { position: relative; outline-offset: 3px; cursor: default;
+  font-family: var(--font-mono); font-weight: 700; font-size: .78rem; letter-spacing: .04em; -webkit-text-stroke: .4px currentColor; } /* mono tops out at 700; the stroke thickens it a touch */
+.tools:has(li[data-name]) { margin: -6px 0; gap: 6px 6px; }
+.tools li[data-name] span { background: #5A3A00; }
+.dot { margin: -10px 4px -10px 0; vertical-align: middle; rotate: -8deg; font-family: var(--font-body); font-weight: 700; font-size: 1.1rem; line-height: 1; }
+/* Tools without an icon (IBM SPSS) get a pill-shaped sticker of the same height */
+.tools:has(li[data-name]) .tool-text { display: inline-grid; place-items: center; height: 40px; padding: 0 14px; border-radius: 999px; rotate: 5deg; translate: 0 3px;
+  background: var(--paper-rough), var(--card-grain) #FFD23F; box-shadow: 0 1px 1.5px rgba(18, 33, 58, .25); color: #5A3A00; }
 .langs li:hover::after, .langs li:focus-visible::after, .tools li:hover::after, .tools li:focus-visible::after { opacity: 1; transform: translate(-50%, 0); }
 .tools li[data-name]:hover { transform: translateY(-2px); }
 @media (prefers-reduced-motion: reduce) { .tools li, .tools li::after, .langs li::after { transition: none; } }
@@ -523,6 +554,7 @@ body::before { content: ""; position: fixed; inset: -4px; z-index: -1; pointer-e
   .catalog::after { left: var(--sheet-x); }
   .catalog { --pin-x: calc(var(--sheet-x) + 10px); }
   .catalog dl > div { grid-template-columns: 1fr; gap: 2px; }
+  .langs, .tools:has(li[data-name]) { margin: 6px 0 -8px; } /* stacked under the label: no pulling up into it */
   .doc:has(> .doc-sub) { background: none; box-shadow: none; padding: 0; gap: var(--s5); }
   .doc-sub { background: var(--sheet-bg); box-shadow: var(--sheet-shadow); border-radius: 6px; padding: var(--s5) var(--sheet-x); }
 }
@@ -974,3 +1006,33 @@ html { scrollbar-color: var(--muted) transparent; accent-color: var(--accent); c
 .km-medal::before { mix-blend-mode: soft-light; background: linear-gradient(140deg, rgba(255, 255, 255, .55), rgba(255, 255, 255, 0) 35%, rgba(0, 0, 0, 0) 60%, rgba(0, 0, 0, .4)); }
 .km-medal::after { mix-blend-mode: overlay; background: linear-gradient(110deg, rgba(255, 255, 255, 0) 41%, rgba(255, 255, 255, .45) 48%, rgba(255, 255, 255, .6) 50%, rgba(255, 255, 255, .45) 52%, rgba(255, 255, 255, 0) 59%) var(--sh, 30%) 0 / 300% 100% no-repeat; }
 @media (prefers-reduced-motion: reduce) { .km-hang { cursor: default; } }
+
+/* Home greeting: "Apa Khabar?" as cut-out magazine letters, each tile its own font, paper and tilt (app/page.tsx) */
+.cutouts { display: flex; flex-wrap: wrap; align-items: flex-start; gap: .1em .35em; margin-top: .2em; }
+.cutout-word { display: flex; gap: .04em; white-space: nowrap; filter: drop-shadow(0 2px 2px rgba(18, 33, 58, .3)); } /* shadow on the word: clip-path would cut a box-shadow off */
+.cutout { display: inline-grid; place-items: center; width: 1.2em; height: 1.3em; overflow: hidden; line-height: 1; font-weight: 700; transition: rotate .25s var(--ease); }
+.co-bebas { font-family: "Bebas Neue", sans-serif; font-weight: 400; font-size: 1.15em; }
+.co-serif { font-family: var(--f-serif), serif; font-style: italic; font-weight: 500; }
+.co-pixel { font-family: var(--co-pixel), monospace; font-size: .8em; }
+.co-term { font-family: var(--co-term), monospace; font-weight: 400; font-size: 1.25em; }
+.co-code { font-family: var(--co-code), monospace; font-weight: 800; }
+.co-fat { font-family: var(--co-fat), serif; font-weight: 400; }
+.co-shade { font-family: var(--co-shade), sans-serif; font-weight: 400; font-size: .9em; }
+.co-neon { font-family: var(--co-neon), sans-serif; font-weight: 400; }
+.co-block { font-family: var(--co-block), sans-serif; font-weight: 400; font-size: .8em; }
+.co-dm { font-family: "DM Sans", sans-serif; font-weight: 900; }
+@media (prefers-reduced-motion: reduce) { .cutout { transition: none; } }
+/* Cut-out paper finishes, drawn in the tile's ink colour (currentColor) at low strength so the letter still reads */
+.cutout { --tx: color-mix(in srgb, currentColor 22%, transparent); }
+.tx-dots { background-image: radial-gradient(var(--tx) 22%, transparent 26%); background-size: .22em .22em; }
+.tx-halftone { background-image: radial-gradient(var(--tx) 30%, transparent 34%); background-size: .3em .3em; }
+.tx-lines { background-image: repeating-linear-gradient(45deg, var(--tx) 0 .03em, transparent .03em .13em); }
+.tx-stripe { background-image: repeating-linear-gradient(-60deg, var(--tx) 0 .12em, transparent .12em .26em); }
+.tx-ruled { background-image: repeating-linear-gradient(transparent 0 .2em, var(--tx) .2em .225em); }
+.tx-grid { background-image: linear-gradient(var(--tx) .02em, transparent .02em), linear-gradient(90deg, var(--tx) .02em, transparent .02em); background-size: .2em .2em; }
+.tx-check { background-image: conic-gradient(var(--tx) 25%, transparent 0 50%, var(--tx) 0 75%, transparent 0); background-size: .3em .3em; }
+.tx-argyle { --a: color-mix(in srgb, currentColor 22%, transparent);
+  background-image: linear-gradient(60deg, var(--a) 25%, transparent 25% 75%, var(--a) 75%), linear-gradient(120deg, var(--a) 25%, transparent 25% 75%, var(--a) 75%);
+  background-size: .4em .693em; }
+.tx-grunge { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.55' numOctaves='3' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -4.5 2.6'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='.38'/%3E%3C/svg%3E"), var(--card-grain); background-size: 2.2em 2.2em, auto; }
+

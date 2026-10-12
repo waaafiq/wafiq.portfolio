@@ -25,7 +25,7 @@ export default function Bolahh() {
             head={["", "Project overview"]}
             rows={[
               ["My role", "UI Design, Frontend"],
-              ["Team", "4 people"],
+              ["Team", <span key="n"><span className="dot">4</span>people</span>],
               ["Timeline", "Sep 2026"],
               ["Tools", <Tools key="t" names={["Figma", "React", "Claude Code"]} />],
               ["Live site", <a key="l" href="https://bolahh.com">bolahh.com</a>],
