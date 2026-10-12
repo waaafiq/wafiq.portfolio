@@ -854,7 +854,9 @@ export default function FifaCard({ profile, cardStats, rank, size = 'normal', on
         pane; nudging each face its own hair's-width off that plane forces
         them onto separate compositing layers and reliably fixes it — this
         is what was showing the front's (mirrored) text through the back. */}
-    <div style={{ position: 'absolute', inset: 0, backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden', transform: 'translateZ(1px)', WebkitTransform: 'translateZ(1px)' }}>
+    {/* willChange on both faces (here and the back face below) keeps each one on its own pre-rastered layer. Without it,
+        Chrome re-rasters a face at its near-zero edge-on size mid-spin and the 360 card blinks out for a few frames. */}
+    <div style={{ position: 'absolute', inset: 0, backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden', transform: 'translateZ(1px)', WebkitTransform: 'translateZ(1px)', willChange: 'transform' }}>
     {useShapedCard && (
       <>
         <svg
@@ -1181,6 +1183,7 @@ export default function FifaCard({ profile, cardStats, rank, size = 'normal', on
       backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden',
       transform: 'rotateY(180deg) translateZ(1px)',
       WebkitTransform: 'rotateY(180deg) translateZ(1px)',
+      willChange: 'transform',
     }}>
       {useShapedCard ? (
         <svg
