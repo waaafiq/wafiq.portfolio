@@ -6,12 +6,12 @@ import { Tools } from "@/components/CatalogChips";
 import { REQ_ICONS } from "@/components/ReqIcons";
 
 // Finding to requirement to feature, one column per requirement (numbers from section 7 of the brief).
-type Req = { icon: keyof typeof REQ_ICONS; name: string; need: string; finding: React.ReactNode | React.ReactNode[]; response: React.ReactNode | React.ReactNode[]; later?: boolean };
+type Req = { icon: keyof typeof REQ_ICONS; name: string; need: string; finding: React.ReactNode | React.ReactNode[]; response: React.ReactNode | React.ReactNode[]; later?: boolean; live?: boolean };
 const REQS: Req[] = [
-  { icon: "search", name: "Multilingual search", need: "Search by English name, Korean name or building number",
+  { icon: "search", name: "Multilingual search", live: true, need: "Search by English name, Korean name or building number",
     finding: [<><span className="n">56%</span> couldn&apos;t search by building number</>, <>Naver Map rated <span className="n">2.75/5</span> by non-Korean readers</>],
     response: <>Search by number or name with an EN / <span lang="ko">한</span> toggle</> },
-  { icon: "map", name: "Building number and map integration", need: "Connect the timetable to the map",
+  { icon: "map", name: "Building number and map integration", live: true, need: "Connect the timetable to the map",
     finding: [<><span className="n">49%</span> couldn&apos;t match timetable numbers to the map</>, <><span className="n">89%</span> struggled most in the first weeks</>],
     response: ["Personal timetable", "Turn-by-turn routes", "Campus shuttle schedule"] },
   { icon: "eye", name: "Visual building identification", need: "Help students confirm they are at the right place",
@@ -78,7 +78,7 @@ export default function EricaNav() {
           rows={[
             ["Module", "Human-Computer System Design"],
             ["My role", "Survey Design, Analysis, Presentation"],
-            ["Team", "5 people"],
+            ["Team", <span key="n"><span className="dot">5</span>people</span>],
             ["Timeline", "Spring 2026"],
             ["Methods", "Survey, chi-square test, binomial test, ANOVA"],
             ["Tools", <Tools key="t" names={["Google Forms", "Excel", "IBM SPSS"]} />],
@@ -199,7 +199,7 @@ export default function EricaNav() {
                 <p>{r.need}</p>
               </div>
               <div className="req-part"><span className="label">Finding</span>{points(r.finding)}</div>
-              <div className="req-part"><span className="label">How ERICA Nav responds</span><span className={`chip ${r.later ? "next" : "wip"}`}>{r.later ? "Later" : "In development"}</span>{points(r.response)}</div>
+              <div className="req-part"><span className="label">How ERICA Nav responds</span><span className={`chip ${r.live ? "live" : r.later ? "next" : "wip"}`}>{r.live ? "Live" : r.later ? "Later" : "In development"}</span>{points(r.response)}</div>
             </article>
           ))}
         </div>
