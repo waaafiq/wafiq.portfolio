@@ -37,17 +37,24 @@ const fixed: [string, string, string, string, number][][] = [
    ["b", "co-term", "#12213A", "#F2B33D", -8], ["a", "co-neon", "#FFFFFF", "#7A2E3A", 4], ["r", "co-block", "#1F4FB5", "#FFFFFF", -4], ["?", "co-dm", "#E6BE5A", "#12213A", 9]],
 ];
 
-// Scissor cut: each corner nudged inward, plus sometimes an extra notch along an edge, so no two tiles are rectangles
+// Scissor cut: each corner nudged inward, plus sometimes a bend along an edge, so no two tiles are rectangles.
+// A bend sits on the line between its two corners and only ever dips inward, so it can't poke out as a spike.
 const cut = (r: () => number) => {
-  const j = (n: number) => +(r() * n * 1.6).toFixed(1); // up to 16% in from each corner
-  const pts = [[j(10), j(10)]];
-  if (r() < .5) pts.push([30 + j(40), j(7)]);
-  pts.push([100 - j(10), j(10)]);
-  if (r() < .5) pts.push([100 - j(7), 30 + j(40)]);
-  pts.push([100 - j(10), 100 - j(10)]);
-  if (r() < .5) pts.push([30 + j(40), 100 - j(7)]);
-  pts.push([j(10), 100 - j(10)]);
-  return `polygon(${pts.map(([x, y]) => `${x}% ${y}%`).join(", ")})`;
+  const j = (n: number) => r() * n * 1.2; // up to 12% in from each corner: deeper insets start to look like spikes
+  const tl = [j(10), j(10)], tr = [100 - j(10), j(10)], br = [100 - j(10), 100 - j(10)], bl = [j(10), 100 - j(10)];
+  // a point 30-70% along a→b, pushed up to 4% inward (dx, dy point into the tile)
+  const bend = (a: number[], b: number[], dx: number, dy: number) => {
+    const t = .3 + r() * .4, d = r() * 4;
+    return [a[0] + (b[0] - a[0]) * t + dx * d, a[1] + (b[1] - a[1]) * t + dy * d];
+  };
+  const pts = [tl];
+  if (r() < .5) pts.push(bend(tl, tr, 0, 1));
+  pts.push(tr);
+  if (r() < .5) pts.push(bend(tr, br, -1, 0));
+  pts.push(br);
+  if (r() < .5) pts.push(bend(br, bl, 0, -1));
+  pts.push(bl);
+  return `polygon(${pts.map(([x, y]) => `${x.toFixed(1)}% ${y.toFixed(1)}%`).join(", ")})`;
 };
 let seed = 7; // fixed seed for the first paint only
 const seeded = () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
