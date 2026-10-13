@@ -77,6 +77,7 @@ h1 { font-size: clamp(2.1rem, 6vw, 3.4rem); letter-spacing: -0.02em; }
 h2 { font-size: clamp(1.35rem, 3.4vw, 1.8rem); letter-spacing: -0.01em; }
 h3 { font-size: 1.2rem; }
 p { margin: 0; max-width: 65ch; }
+p, li, figcaption { text-wrap: pretty; } /* no one-word last lines */
 a { color: var(--accent); text-underline-offset: 3px; }
 img, svg, video { max-width: 100%; }
 button { font: inherit; color: inherit; }
@@ -173,7 +174,7 @@ td.n { font-weight: 600; }
 ul.plain { margin: 0; padding-left: 1.1em; display: flex; flex-direction: column; gap: var(--s2); max-width: 65ch; }
 
 /* Charts */
-.chart { position: relative; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 18px 10px; }
+.chart { margin: 0; position: relative; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 18px 10px; }
 .chart svg { display: block; width: 100%; height: auto; overflow: visible; }
 @media (min-width: 561px) and (max-width: 1099px) { .finding .chart { width: 100%; max-width: 620px; } } /* one finding per row here: stop the drawn-to-scale labels growing huge */
 .legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: .85rem; color: var(--ink2); margin-bottom: var(--s2); }
@@ -317,7 +318,7 @@ dialog::backdrop { background: rgba(14, 21, 34, .5); }
   .sticker.held .sk { transform: none; }
 }
 .scores { table-layout: fixed; }
-.scores :is(th, td) { padding-inline: 10px; }
+.scores :is(th, td):not(:first-child) { padding-inline: 10px; }
 .scores th:first-child { width: 31%; }
 .scores :is(thead th:not(:first-child), td) { text-align: center; }
 th.rowh { font-family: var(--font-body); font-size: .93rem; text-transform: none; letter-spacing: 0; color: var(--ink); }
@@ -370,14 +371,11 @@ body::before { content: ""; position: fixed; inset: -4px; z-index: -1; pointer-e
 @media (max-width: 700px), (hover: none) and (max-width: 1366px) { .tab.tab-me { display: none; } } /* phones and touch tablets: these three move to .me-bar above the tabs */
 .me-bar { display: none; }
 @media (max-width: 700px), (hover: none) and (max-width: 1366px) {
-  .me-bar { display: flex; align-items: center; justify-content: flex-end; gap: 10px; padding: 18px 16px 0; margin-bottom: 44px; color: var(--ink); } /* 44px: room for the chevron over the tabs */
+  .me-bar { display: flex; align-items: center; justify-content: flex-end; gap: 10px; padding: 18px 20px 0; margin-bottom: 44px; color: var(--ink); } /* 44px: room for the chevron over the tabs */
   .me-folio { font-family: var(--f-serif), serif; font-style: italic; font-size: 1.3rem; font-weight: 500; line-height: 1; }
   .me-name { font-family: var(--font-tab); font-size: .76rem; font-weight: 500; letter-spacing: .02em; }
   .me-name b { text-transform: uppercase; letter-spacing: .06em; font-weight: 600; margin-left: .2em; }
-  .me-spark { display: grid; place-items: center; width: 44px; height: 44px; margin: -10px -12px -10px -8px; border: 0; background: none; color: inherit; cursor: var(--click); }
-  .me-spark svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linejoin: round; transition: rotate .45s var(--ease), scale .2s; }
-  .me-spark:hover svg { rotate: 90deg; scale: 1.1; }
-  .me-name, .me-spark { translate: 0 3px; } /* the italic serif sits low, so centre on its lowercase, not its box */
+  .me-name { translate: 0 3px; } /* the italic serif sits low, so centre on its lowercase, not its box */
   .cabinet, .cabinet[class] { margin-top: 0; }
 }
 .tab[aria-current="page"] { height: 43px; margin-bottom: -1px; z-index: 3; filter: none; }
@@ -549,7 +547,7 @@ body::before { content: ""; position: fixed; inset: -4px; z-index: -1; pointer-e
   .tab .full { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   .tab .short { display: inline; }
   .page { padding: var(--s6) 20px var(--s7); gap: var(--s5); }
-  .doc { padding: var(--s5) var(--sheet-x); }
+  .doc { padding: var(--s5) var(--sheet-x) var(--sheet-x); }
   .catalog { padding: 26px var(--sheet-x) var(--sheet-x); }
   .catalog::after { left: var(--sheet-x); }
   .catalog { --pin-x: calc(var(--sheet-x) + 10px); }
@@ -575,7 +573,7 @@ html { scrollbar-color: var(--muted) transparent; accent-color: var(--accent); c
 
 /* ===== Respondent grid ===== */
 .respondents { margin: 0; display: flex; flex-direction: column; gap: var(--s4); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: var(--s5); }
-.resp-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s3) var(--s5); }
+.resp-head { display: flex; flex-direction: column; align-items: flex-start; gap: var(--s3); }
 .resp-total { font-size: 1rem; }
 .resp-rows { display: flex; flex-direction: column; gap: var(--s3); }
 .resp-row { display: grid; grid-template-columns: 120px 1fr auto; align-items: center; gap: var(--s4); }
@@ -592,9 +590,6 @@ html { scrollbar-color: var(--muted) transparent; accent-color: var(--accent); c
 }
 
 .keyfig .note { font-size: .78rem; }
-.respondents .seg { display: flex; flex-wrap: nowrap; align-self: flex-start; }
-.respondents .seg button { flex: 1; white-space: nowrap; }
-@media (max-width: 560px) { .respondents .seg { width: 100%; } }
 /* More desk above the folders */
 .cabinet { margin-top: 72px; } /* room for the chevron above the tabs, now that there is no header row */
 @media (max-width: 560px) { .cabinet { margin-top: 20px; } }
@@ -689,8 +684,8 @@ html { scrollbar-color: var(--muted) transparent; accent-color: var(--accent); c
 /* ===== Fuller pages: wider content, two columns on wide screens, tighter spacing ===== */
 :root { --page: 1280px; }
 .page, .page.read { max-width: var(--page); gap: var(--s6); padding-top: var(--s7); }
-.doc { padding: var(--s5) var(--s6); }
-@media (max-width: 560px) { .doc { padding: var(--s5) var(--sheet-x); } } /* phones: the desktop padding above was overriding this */
+.doc { padding: var(--s5) var(--s6) var(--s6); } /* bottom matches the sides */
+@media (max-width: 560px) { .doc { padding: var(--s5) var(--sheet-x) var(--sheet-x); } } /* phones: the desktop padding above was overriding this */
 .lede { max-width: 60ch; }
 .doc-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); } /* one column that never grows past the page */
 .doc-row { gap: var(--s6); }
@@ -704,14 +699,15 @@ html { scrollbar-color: var(--muted) transparent; accent-color: var(--accent); c
   .page-head > .catalog { grid-column: 2; grid-row: 1 / -1; align-self: center; width: 100%; max-width: none; }
   .page-head.note-left > .catalog { translate: -56px 0; } /* Design page: Toolkit card nudged in toward the headline */
   /* Two-column documents: words on the left, the chart, table, list or demo on the right */
-  .duo { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr); column-gap: 48px; row-gap: var(--s4); align-items: start; }
+  .duo { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); column-gap: 64px; row-gap: 0; align-items: start; }
+  .doc.duo > * + * { margin-top: var(--s5); }
+  .doc.duo > :is(.note, ul.note) { margin-top: var(--s3); } /* margins, not row-gap: the right column spans 4 rows and empty rows would each add a gap; a footnote sits close to its text */
   .duo > * { grid-column: 1; }
   .duo > .eyebrow:first-child { grid-column: 1 / -1; }
   .duo > :is(.viz, .chart, .tablewrap, .respondents, ul.plain, .card-stage) { grid-column: 2; grid-row: 2 / span 4; }
-  #key.duo { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; }
   .doc-row { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; }
   /* Side-by-side findings share rows (eyebrow, title, chart, text, stats) so the text starts on the same line */
-  .doc-row > .finding { display: grid; grid-row: span 5; grid-template-rows: subgrid; row-gap: var(--s4); align-content: start; }
+  .doc-row > .finding { display: grid; grid-row: span 5; grid-template-rows: subgrid; row-gap: var(--s5); align-content: start; }
   .doc-row > .finding > .chart { display: flex; flex-direction: column; justify-content: center; }
   /* A catalog card filed in a sheet pokes out past the sheet's left edge */
   .doc-row > .doc > .catalog { margin-left: calc(-1 * var(--s6) - 56px); z-index: 1; }
@@ -1036,3 +1032,49 @@ html { scrollbar-color: var(--muted) transparent; accent-color: var(--accent); c
   background-size: .4em .693em; }
 .tx-grunge { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.55' numOctaves='3' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -4.5 2.6'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='.38'/%3E%3C/svg%3E"), var(--card-grain); background-size: 2.2em 2.2em, auto; }
 
+
+/* ERICA Nav results-at-a-glance table */
+.glance { table-layout: fixed; }
+.glance :is(th, td) { text-align: left; vertical-align: middle; padding: 14px 16px; }
+.glance thead th:nth-child(1) { width: 36%; }
+.glance thead th:nth-child(2) { width: 18%; }
+.glance thead th:nth-child(4) { width: 170px; }
+.glance th a { color: inherit; text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 4px; }
+.glance th a:hover { color: var(--accent); text-decoration-color: currentColor; }
+.glance .chip { display: inline-block; margin: 0; padding: 4px 10px; line-height: 1.3; white-space: nowrap; }
+@media (max-width: 560px) { /* phones: each row becomes a small stacked block instead of a squeezed 4-column table */
+  .tablewrap table.glance { min-width: 0; }
+  .glance thead { display: none; }
+  .glance :is(tbody, tr, th, td) { display: block; }
+  .glance tr { padding: 14px 16px; border-bottom: 1px solid var(--line); }
+  .glance tr:last-child { border-bottom: 0; }
+  .glance :is(th, td) { padding: 0; border: 0; }
+  .glance th { margin-bottom: 8px; }
+  .glance td { font-size: .87rem; }
+  .glance td + td { margin-top: 4px; }
+  .glance td:last-child { margin-top: 10px; }
+  .glance td[data-label] { display: grid; grid-template-columns: 5em 1fr; align-items: baseline; }
+  .glance td[data-label]::before { content: attr(data-label); font-family: var(--font-mono); font-size: .68rem; letter-spacing: .06em; text-transform: uppercase; color: var(--ink2); }
+}
+.doc[id] { scroll-margin-top: 24px; } /* in-page links (results table) land with breathing room */
+@media (min-width: 1100px) {
+  #q1.duo > h2 { grid-column: 1 / -1; } /* title gets its own row */
+  #q1.duo > .respondents { grid-row: 3 / span 3; align-self: start; } /* dot grid starts level with the 51% */
+}
+/* Every display-font heading in a card: 28.8px desktop, 21.6px phones (page titles keep their own size) */
+.doc :is(h2, h3, .proj-title) { font-size: clamp(1.35rem, 3.4vw, 1.8rem); letter-spacing: -0.01em; }
+.doc .req-head h3 { font-size: 1.2rem; } /* requirement cards sit four across, so their titles stay smaller */
+/* One sheet, two halves split by a rule; rows line up across the halves */
+.split { display: grid; grid-template-columns: 1fr; gap: var(--s6); }
+.split > div { display: grid; gap: var(--s5); align-content: start; }
+.split > div + div { border-top: 1px solid var(--line); padding-top: var(--s5); }
+@media (min-width: 1100px) {
+  .split { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(4, auto); gap: var(--s5) 0; }
+  .split > div { grid-row: span 4; grid-template-rows: subgrid; }
+  .split > div:first-child { padding-right: 48px; }
+  .split > div + div { border-top: 0; padding-top: 0; border-left: 1px solid var(--line); padding-left: 48px; }
+}
+/* ERICA Nav breathing room: 24px between blocks in a sheet, 12px between a paragraph and its footnote */
+.erica .doc { gap: var(--s5); }
+.erica :is(.doc:not(.duo), .split > div) > :is(.note, ul.note) { margin-top: calc(var(--s3) - var(--s5)); }
+@media (min-width: 1100px) { .erica .doc.duo { row-gap: 0; column-gap: 64px; } } /* two-column sheets space their rows with margins (see .duo) */

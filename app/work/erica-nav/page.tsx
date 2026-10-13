@@ -19,7 +19,7 @@ const REQS: Req[] = [
     response: <>Building photos on the map</> },
   { icon: "indoor", name: "Indoor wayfinding", need: "Guide students past the front door", later: true,
     finding: [<><span className="n">64%</span> struggled to find rooms</>, <><span className="n">40%</span> said directions stop at the building</>],
-    response: <>Not planned yet: floor maps are a much larger build, so they come after the core app</> },
+    response: <>Floor plans for every building come after the building-level app ships</> },
 ];
 // Several points read as a bulleted list, a single one as a sentence.
 const points = (x: React.ReactNode | React.ReactNode[]) =>
@@ -30,13 +30,14 @@ export const metadata: Metadata = {
   description: "A survey of 45 Hanyang ERICA students on campus wayfinding, and the requirements it produced for the ERICA Nav app.",
 };
 
-// Every number on this page comes from section 7 of PORTFOLIO_BRIEF.md.
+// Every number on this page comes from section 7 of PORTFOLIO_BRIEF.md and the course deck.
+// The power figure in question 1 is a 20,000-run simulation of the chi-square test at the observed rates.
 const groups = ["Native\nKorean", "Some\nKorean", "No\nKorean"];
 const g = (i: number) => groups[i].replace("\n", " ");
 const pct = (n: number, of: number) => (n / of) * 100;
 
 const building = [5, 8, 10], room = [9, 10, 10];
-const naver = [4.39, 3.56, 2.75];
+const naver = [4.39, 3.56, 2.75], official = [4.0, 4.0, 3.75];
 
 const problems = [
   { label: "Can't search by\nbuilding number", n: 25, hi: true },
@@ -60,6 +61,12 @@ const of45 = (rows: { label: string; n: number; hi?: boolean }[]) =>
     tip: `${r.label.replace("\n", " ")}: ${r.n} of 45 (${Math.round(pct(r.n, 45))}%)`,
   }));
 
+const GLANCE = [
+  { q: "Does Korean ability affect finding buildings?", href: "#q1", test: "Chi-square", result: "33% → 53% → 67%, p = 0.185", verdict: "Not significant", chip: "next" },
+  { q: "Do map apps help every group equally?", href: "#q2-naver", test: "ANOVA, Scheffé", result: "Naver Map p = 0.001; official map p > 0.8", verdict: "Naver Map only", chip: "wip" },
+  { q: "Do most students struggle to find rooms?", href: "#q3", test: "Binomial vs 50%", result: "64%, p = 0.036", verdict: "Supported", chip: "live" },
+];
+
 const validation = [
   ["Usability", "4.03", "4.27", "4.31"],
   ["Usefulness", "4.16", "4.34", "4.57"],
@@ -68,11 +75,11 @@ const validation = [
 
 export default function EricaNav() {
   return (
-    <main className="page read">
+    <main className="page read erica">
       <header className="page-head">
         <span className="pill glass">Data analysis · Campus wayfinding</span>
         <h1>Why do students get lost on campus?</h1>
-        <p className="lede"><strong>We surveyed 45 Hanyang ERICA students.</strong><br />56% couldn&apos;t search for a building by its number, and Naver Map, the app most of them use, worked far worse for students who don&apos;t read Korean.</p>
+        <p className="lede"><strong>We surveyed 45 Hanyang ERICA students and tested three hypotheses.</strong><br />Half had trouble finding buildings. Naver Map, the app most of them use, scored 2.75 out of 5 with students who don&apos;t read Korean and 4.39 with native speakers.</p>
         <Catalog
           head={["", "Project overview"]}
           rows={[
@@ -90,17 +97,7 @@ export default function EricaNav() {
       <section className="doc duo" id="question">
         <p className="eyebrow">The question</p>
         <h2>Does knowing Korean influence your ERICA wayfinding experience?</h2>
-        <p className="viz">ERICA timetables list classes only by building and room number, and popular map apps are built for streets, not campuses. We wanted to find where students lose their way, and whether international students struggle more.</p>
-      </section>
-
-      <section className="doc duo" id="key">
-        <p className="eyebrow">Key finding</p>
-        <div className="keyfig">
-          <div className="num"><CountUp to={64} /><small>%</small></div>
-          <p>of students had trouble finding a room inside a building.</p>
-          <p className="note">Binomial test vs 50%, one-tailed p = 0.036</p>
-        </div>
-        <Respondents />
+        <p className="viz">ERICA timetables list classes by building number and room. Map apps search by street and place name. We split 45 students into three groups by their Korean when they arrived.</p>
       </section>
 
       <section className="doc" id="method">
@@ -113,34 +110,52 @@ export default function EricaNav() {
         </div>
       </section>
 
-      <div className="doc-row">
-      <section className="doc finding" id="f1">
-          <p className="eyebrow">Finding 1</p>
-          <h3>Finding the room is as hard as or harder than finding the building</h3>
-          <VChart
-            caption="Share of students with trouble finding a building versus a room, by Korean ability"
-            groups={groups} max={100} ticks={[0, 25, 50, 75, 100]} axisSuffix="%" legend
-            series={[
-              { name: "Trouble finding a building", bars: building.map((n, i) => ({ value: pct(n, 15), text: `${Math.round(pct(n, 15))}%`, tip: `${g(i)}: ${n} of 15 had trouble finding a building` })) },
-              { name: "Trouble finding a room inside it", bars: room.map((n, i) => ({ value: pct(n, 15), text: `${Math.round(pct(n, 15))}%`, tip: `${g(i)}: ${n} of 15 had trouble finding a room`, hi: true })) },
-            ]}
-          />
-          <p>Native speakers had the least trouble between buildings but still struggled inside (33% vs 60%). Building trouble rose as Korean ability fell (33% to 67%), though not significantly.</p>
-          <ul className="note">
-            <li>Rooms: binomial p = 0.036</li>
-            <li>Buildings by group: χ²(2, N = 45) = 3.379, p = 0.185</li>
-          </ul>
-        </section>
+      <section className="doc" id="glance">
+        <p className="eyebrow">Results at a glance</p>
+        <h2>Two results held up, one needs more data</h2>
+        <div className="tablewrap">
+          <table className="glance wide">
+            <caption className="sr-only">Each research question with its test, result and verdict</caption>
+            <thead><tr><th scope="col">Question</th><th scope="col">Test</th><th scope="col">Result</th><th scope="col">Verdict</th></tr></thead>
+            <tbody>
+              {GLANCE.map((r) => (
+                <tr key={r.q}>
+                  <th scope="row" className="rowh"><a href={r.href}>{r.q}</a></th>
+                  <td data-label="Test">{r.test}</td>
+                  <td data-label="Result">{r.result}</td>
+                  <td><span className={`chip ${r.chip}`}>{r.verdict}</span></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
 
-      <section className="doc finding" id="f2">
-          <p className="eyebrow">Finding 2</p>
-          <h3>The most-used map app works far less well for students who don&apos;t read Korean</h3>
+      <section className="doc duo" id="q1">
+        <p className="eyebrow">Question 1 · Finding buildings</p>
+        <h2>Less Korean, more trouble, but not significant</h2>
+        <div className="keyfig">
+          <div className="num"><CountUp to={51} /><small>%</small></div>
+          <p>of students had trouble finding a building.</p>
+        </div>
+        <p>Trouble rose as Korean ability fell, but the difference wasn&apos;t significant. With 15 students per group, the test had about a 1 in 3 chance of detecting a gap this size.</p>
+        <ul className="note">
+          <li>χ²(2, N = 45) = 3.379, p = 0.185</li>
+          <li>Power at observed rates ≈ 0.36 (simulation)</li>
+        </ul>
+        <Respondents />
+      </section>
+
+      <div className="doc-row">
+      <section className="doc finding" id="q2-naver">
+          <p className="eyebrow">Question 2 · Naver Map</p>
+          <h3>Naver Map falls short without Korean</h3>
           <VChart
             caption="Mean helpfulness of Naver Map by Korean ability, 1 to 5"
             groups={groups} max={5} ticks={[0, 1, 2, 3, 4, 5]}
             series={[{ name: "Naver Map helpfulness", bars: naver.map((v, i) => ({ value: v, text: v.toFixed(2), tip: `${g(i)}: mean ${v.toFixed(2)} out of 5`, hi: i === 2 })) }]}
           />
-          <p>58% of students use Naver Map. Native speakers rated it 4.39 out of 5, students with no Korean 2.75. The official campus map scored about the same in every group (4.00, 4.00, 3.75), which suggests the app causes the gap.</p>
+          <p>58% of students use Naver Map. Both foreign groups rated it significantly lower than native speakers.</p>
           <div className="note">
             <p>One-way ANOVA with Scheffé post hoc:</p>
             <ul>
@@ -150,46 +165,78 @@ export default function EricaNav() {
             </ul>
           </div>
         </section>
-      </div>
 
-      <div className="doc-row">
-      <section className="doc finding" id="f3">
-          <p className="eyebrow">Finding 3</p>
-          <h3>Building numbers are the main source of confusion</h3>
-          <HChart caption="Problems students reported with map apps on campus, share of 45 respondents" rows={of45(problems)} />
-          <p>The top two problems both involve building numbers: 56% couldn&apos;t search by number, and 49% couldn&apos;t match their timetable to the map. Only 15 of 45 rated campus signs clear.</p>
+      <section className="doc finding" id="q2-official">
+          <p className="eyebrow">Question 2 · Official campus map</p>
+          <h3>The official map works the same for everyone</h3>
+          <VChart
+            caption="Mean helpfulness of the official campus map by Korean ability, 1 to 5"
+            groups={groups} max={5} ticks={[0, 1, 2, 3, 4, 5]}
+            series={[{ name: "Official map helpfulness", bars: official.map((v, i) => ({ value: v, text: v.toFixed(2), tip: `${g(i)}: mean ${v.toFixed(2)} out of 5` })) }]}
+          />
+          <p>33% use the official map. Its ratings held steady across groups, which suggests the gap comes from Naver Map itself.</p>
           <div className="note">
-            <p>Multi-select, share of 45 respondents</p>
-            <p>Sign clarity ratings:</p>
-            <ul>
-              <li>Clear or very clear: 15</li>
-              <li>Neutral: 21</li>
-              <li>Unclear: 9</li>
-            </ul>
-          </div>
-        </section>
-
-      <section className="doc finding" id="f4">
-          <p className="eyebrow">Finding 4</p>
-          <h3>The problem peaks in the first weeks of the semester</h3>
-          <HChart caption="Situations in which students found campus navigation difficult, share of 45 respondents" rows={of45(situations)} />
-          <p>89% found the first weeks of semester hardest, and 71% struggled in buildings they hadn&apos;t visited before. Early campus familiarity averaged below 2 out of 5 in every group.</p>
-          <div className="note">
-            <p>Multi-select, share of 45 respondents</p>
-            <p>First-months familiarity, 1 to 5:</p>
-            <ul>
-              <li>Native: 1.87</li>
-              <li>Some Korean: 1.60</li>
-              <li>No Korean: 1.47</li>
-            </ul>
+            <p>Scheffé post hoc: p = 1.000, 0.939, 0.887</p>
+            <p>Mean across all users: Naver Map 3.73, official map 3.60</p>
           </div>
         </section>
       </div>
+
+      <section className="doc" id="problems">
+        <p className="eyebrow">What goes wrong · Descriptive</p>
+        <div className="split">
+          <div>
+            <h3>Map apps can&apos;t handle building numbers</h3>
+            <HChart caption="Problems students reported with map apps on campus, share of 45 respondents" rows={of45(problems)} />
+            <p>Both top problems involve building numbers. Only 15 of 45 rated campus signs clear.</p>
+            <div className="note">
+              <p>Multi-select, share of 45 respondents</p>
+              <p>Sign clarity ratings:</p>
+              <ul>
+                <li>Clear or very clear: 15</li>
+                <li>Neutral: 21</li>
+                <li>Unclear: 9</li>
+              </ul>
+            </div>
+          </div>
+          <div>
+            <h3>Students get lost early and in new buildings</h3>
+            <HChart caption="Situations in which students found campus navigation difficult, share of 45 respondents" rows={of45(situations)} />
+            <p>Early campus familiarity averaged below 2 out of 5 in every group.</p>
+            <div className="note">
+              <p>Multi-select, share of 45 respondents</p>
+              <p>First-months familiarity, 1 to 5:</p>
+              <ul>
+                <li>Native: 1.87</li>
+                <li>Some Korean: 1.60</li>
+                <li>No Korean: 1.47</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="doc duo" id="q3">
+        <p className="eyebrow">Question 3 · Finding rooms</p>
+        <h2>Most students get lost once they&apos;re inside</h2>
+        <p>Yes: 29 of 45 (64%), significantly more than half. Native speakers found rooms much harder than buildings (60% vs 33%). The other groups struggled with both about equally. With map apps, 40% said directions stop at the building, not the room, and 22% couldn&apos;t find the entrance or floor.</p>
+        <ul className="note">
+          <li>Binomial test vs 50%, one-tailed p = 0.036</li>
+        </ul>
+        <VChart
+          caption="Share of students with trouble finding a building versus a room, by Korean ability"
+          groups={groups} max={100} ticks={[0, 25, 50, 75, 100]} axisSuffix="%" legend
+          series={[
+            { name: "Trouble finding a building", bars: building.map((n, i) => ({ value: pct(n, 15), text: `${Math.round(pct(n, 15))}%`, tip: `${g(i)}: ${n} of 15 had trouble finding a building` })) },
+            { name: "Trouble finding a room inside it", bars: room.map((n, i) => ({ value: pct(n, 15), text: `${Math.round(pct(n, 15))}%`, tip: `${g(i)}: ${n} of 15 had trouble finding a room`, hi: true })) },
+          ]}
+        />
+      </section>
 
       <section className="doc" id="design">
         <p className="eyebrow">From data to design</p>
-        <h2>Each requirement traces back to a finding</h2>
-        <p>The course prototype tested these ideas. I&apos;m now building the first three into a full app, starting with the campus map.</p>
+        <h2>Every feature answers a finding</h2>
+        <p>The course prototype covered all four. The full app starts with buildings: every room address begins with a building number, and indoor maps need floor plans for each building.</p>
         <div className="reqs">
           {REQS.map((r) => (
             <article className="req" key={r.name}>
@@ -207,8 +254,8 @@ export default function EricaNav() {
 
       <section className="doc duo" id="validation">
         <p className="eyebrow">Validation</p>
-        <h2>The prototype scored above 4 out of 5 in every group</h2>
-        <p>10 students per language group rated the course prototype from 1 to 5. Students with no Korean gave it the highest usefulness and satisfaction scores. There was no side-by-side test with Naver Map, so this doesn&apos;t show it beats existing apps.</p>
+        <h2>Students without Korean liked it most</h2>
+        <p>10 students per group rated the course prototype from 1 to 5. We didn&apos;t test it against Naver Map, so this doesn&apos;t show it beats existing apps.</p>
         <div className="tablewrap">
           <table className="scores">
             <caption className="sr-only">Prototype ratings by group, mean on a scale of 1 to 5, 10 students per group</caption>
@@ -226,9 +273,9 @@ export default function EricaNav() {
         <p className="eyebrow">Reflection</p>
         <h2>What I would do differently</h2>
         <ul className="plain">
-          <li>Recruit more participants. Small subgroups weaken the ANOVA.</li>
-          <li>Time real journeys, like walking from the main gate to a room, instead of relying on self-reported difficulty.</li>
-          <li>Ask more about indoor navigation. It affected 64% of students but got only two questions.</li>
+          <li>Recruit more participants. 15 per group was too few to test the building trend.</li>
+          <li>Time real journeys, like main gate to classroom, instead of asking about difficulty.</li>
+          <li>Ask more about rooms. 64% struggled, but the survey had two questions on it.</li>
         </ul>
       </section>
 

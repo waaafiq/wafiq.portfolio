@@ -239,11 +239,10 @@ export default function Cabinet({ children, footer }: { children: React.ReactNod
 
   return (
     <div className="cabinet" data-folder={active.c}>
-      {/* Narrow screens: the portfolio / name / sparkle tabs don't fit beside the folder tabs, so they sit above as plain text */}
+      {/* Narrow screens: the portfolio / name tabs don't fit beside the folder tabs, so they sit above as plain text (no sparkle here) */}
       <div className="me-bar">
         <span className="me-folio">portfolio</span>
         <span className="me-name">by <b>Hakeem Wafiq</b></span>
-        <button type="button" className="me-spark" aria-label="Throw confetti" onClick={(e) => confetti(e.currentTarget)}>{SPARK}</button>
       </div>
       <nav className="tabs" aria-label="Main" ref={tabsRef} onPointerMove={onNavMove} onPointerLeave={() => hover(null)}>
         <span className="tab-marker" ref={markerRef} aria-hidden="true">

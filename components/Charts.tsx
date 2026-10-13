@@ -103,7 +103,7 @@ export function VChart({ caption, groups, series, max, ticks, axisSuffix = "", l
   const y = (v: number) => m.t + ih - (v / max) * ih;
   const gw = iw / groups.length, nS = series.length, bw = Math.min(56, (gw * 0.62) / nS), gap = 2;
   return (
-    <figure className="chart" ref={box} data-seen={seen || undefined} style={{ margin: 0 }}>
+    <figure className="chart" ref={box} data-seen={seen || undefined}>
       {legend && (
         <div className="legend" aria-hidden="true">
           {series.map((s) => <span key={s.name}><i style={{ background: s.bars[0].hi ? "var(--accent)" : "var(--neutral)" }} />{s.name}</span>)}
@@ -154,7 +154,7 @@ export function HChart({ caption, rows, max = 100 }: {
   const W = narrow ? 400 : 640, row = narrow ? 52 : 44, pad = 6, labelW = narrow ? 0 : 250, right = 56;
   const H = pad * 2 + row * rows.length, iw = W - labelW - right;
   return (
-    <figure className="chart h" ref={box} data-seen={seen || undefined} style={{ margin: 0 }}>
+    <figure className="chart h" ref={box} data-seen={seen || undefined}>
       <svg viewBox={`0 0 ${W} ${H}`} role="group" aria-label={caption}>
         {rows.map((r, i) => {
           const yy = pad + i * row, bh = 20, by = narrow ? yy + 24 : yy + (row - bh) / 2;
