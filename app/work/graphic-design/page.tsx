@@ -13,7 +13,7 @@ const montserrat = Montserrat({ subsets: ["latin"], weight: ["600"], variable: "
 
 export const metadata: Metadata = {
   title: "Graphic Design",
-  description: "Flower stickers, a photo studio brand identity and After Effects spec ads by Hakeem Wafiq.",
+  description: "Brand identities for a photo studio and a sports carnival, and After Effects spec ads by Hakeem Wafiq.",
 };
 
 export default function GraphicDesign() {
