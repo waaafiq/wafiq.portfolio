@@ -38,7 +38,7 @@ const files: FileItem[] = [
   {
     href: "/work/graphic-design",
     title: "Graphic Design",
-    text: "Draggable flower stickers, a brand identity for a photo studio and two After Effects spec ads.",
+    text: "Brand identities for a photo studio and a sports carnival, and two After Effects spec ads.",
     kind: "Collection",
     date: "2026",
     folder: "graphic",
